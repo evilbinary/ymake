@@ -12,7 +12,18 @@ import glob
 import importlib
 import importlib.util
 import subprocess
-
+import re
+import math
+import platform 
+import sys
+import json
+import networkx as nx
+import fnmatch
+import types
+import argparse
+import inspect
+import hashlib
+import datetime
 
 def project(name, **kwargs):
     targets = kwargs.pop('targets', [])
@@ -386,8 +397,10 @@ def get_plat():
 def add_subs(*path):
     caller_frame = inspect.currentframe().f_back
     caller_file_path = inspect.getframeinfo(caller_frame).filename
-    # simplified_path = './'+caller_file_path
-    simplified_path = caller_file_path
+    simplified_path = './'+caller_file_path
+    if caller_file_path.startswith('/'):
+        simplified_path = caller_file_path
+
     dir_name=os.path.dirname(simplified_path)
 
     # print('caller_file_path=>',caller_file_path)

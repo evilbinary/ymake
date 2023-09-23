@@ -145,7 +145,6 @@ def gcc_build(tool,target,opt={}):
     cflags=get_target_cflags(target)
     
     total_nodes=len(modify_file_objs)+1
-    progress=0
     build_commands=[]
     for obj in modify_file_objs:
         
@@ -154,12 +153,10 @@ def gcc_build(tool,target,opt={}):
         build_obj=os.path.join(build_obj_dir,obj_name)
         log.debug('build_obj=>{} {}'.format(obj,obj_name))
 
-        build_commands.append([tool.get("cc"),[obj]+cflags+includedirs+['-c','-o',build_obj] ])
-
-        progress+=1
-        print_progress(progress,total_nodes,obj_name, opt)
-        
-    process_build(build_commands)
+        build_commands.append([obj_name,tool.get("cc"),[obj]+cflags+includedirs+['-c','-o',build_obj] ])
+    
+    progress_info={'progress':0,'total_nodes':total_nodes,'opt': opt}
+    process_build(build_commands,progress_info)
 
     file_objs=[os.path.join(build_obj_dir,get_object_name(item)) for item in file_objs]
 
@@ -170,22 +167,30 @@ def gcc_build(tool,target,opt={}):
         return
 
     if target.get('kind')=='static':
-         build_commands.append([tool.get("ar"),['-r',build_target]+file_objs ])
+         build_commands.append([build_target,tool.get("ar"),['-r',build_target]+file_objs ])
     elif target.get('kind')=='shared':
         flags+=['-shared']
-        build_commands.append([tool.get("ld"),file_objs+['-o',build_target]+ ldflags ])
+        build_commands.append([build_target,tool.get("ld"),file_objs+['-o',build_target]+ ldflags ])
     else:
-        build_commands.append([tool.get("ld"),file_objs+['-o',build_target]+ ldflags ])
+        build_commands.append([build_target,tool.get("ld"),file_objs+['-o',build_target]+ ldflags ])
 
-    process_build(build_commands)
-
-    progress+=1
-    print_progress(progress,total_nodes,build_target,opt)
+    process_build(build_commands,progress_info)
 
 
-def process_build(compile_commands):
+def build_cmd(command,info):
+    target=command[0]
+    cmd(command[1],command[2])
+
+    print('info=>',info)
+    
+    info['progress']+=1
+
+    print_progress(info['progress'],info['total_nodes'],target, info['opt'])
+
+def process_build(compile_commands,info):
+
     executor = ThreadPoolExecutor(max_workers=4)
-    futures = [executor.submit(cmd, command[0],command[1] ) for command in compile_commands]
+    futures = [executor.submit(build_cmd, command,info ) for command in compile_commands]
     for future in futures:
         log.debug('ret={}'.format(future.result()))
 

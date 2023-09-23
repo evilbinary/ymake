@@ -17,13 +17,12 @@ import argparse
 import inspect
 import hashlib
 import datetime
-import re
 import logging
 from .log import log
 from .function import *
 from .builder import *
 
-version='0.1.2'
+version='0.1.6'
 
 verborse=''
 

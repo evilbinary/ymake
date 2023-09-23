@@ -10,7 +10,7 @@ test-v:
 	pytest ymake/ytests.py -s
 
 install-py:
-	$(PYTHON) -m pip install build pytest colorama networkx colorlog #dask[distributed]
+	$(PYTHON) -m pip install build twine pytest colorama networkx colorlog #dask[distributed]
 
 run:
 	$(PYTHON) tests/ya.py  -vD
