@@ -6,7 +6,7 @@
 # ********************************************************************
 target('a')
 
-add_kind("static")
+add_kind("binary")
 add_files("./a.c")
 add_deps("c")
 

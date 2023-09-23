@@ -17,7 +17,7 @@ y:
 
 
 upload:
-	python3 -m twine upload dist/*
+	python3 -m twine upload dist/* --verbose
 
 dist:
 	python3 -m build
