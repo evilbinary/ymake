@@ -471,6 +471,7 @@ def cmd(cmd,args,env=None):
         pass
     else:
         log.error(error.decode())
+        exit(-1)
         raise Exception(error.decode())
 
 def get_include(target):

@@ -16,7 +16,7 @@ run:
 	$(PYTHON) tests/ya.py  -vD
 
 y:
-	@cd ~/dev/c/YiYiYa && $(PYTHON) ya.py
+	@cd ~/dev/c/YiYiYa && $(PYTHON) ya.py -vD
 
 
 upload:

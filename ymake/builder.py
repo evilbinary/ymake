@@ -166,6 +166,7 @@ def gcc_build(tool,target,opt={}):
         log.warn('obj file is 0')
         return
 
+    build_commands=[]
     if target.get('kind')=='static':
          build_commands.append([build_target,tool.get("ar"),['-r',build_target]+file_objs ])
     elif target.get('kind')=='shared':
@@ -181,7 +182,7 @@ def build_cmd(command,info):
     target=command[0]
     cmd(command[1],command[2])
 
-    print('info=>',info)
+    log.debug('info=>{}'.format(info))
     
     info['progress']+=1
 
@@ -193,6 +194,7 @@ def process_build(compile_commands,info):
     futures = [executor.submit(build_cmd, command,info ) for command in compile_commands]
     for future in futures:
         log.debug('ret={}'.format(future.result()))
+    executor.shutdown()
 
 
 # def run_job():
