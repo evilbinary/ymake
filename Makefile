@@ -19,7 +19,7 @@ y:
 	@cd ~/dev/c/YiYiYa && $(PYTHON) ya.py -vD
 
 
-upload:
+upload: dist
 	$(PYTHON) -m twine upload dist/* --verbose
 
 dist: ymake/*.py
