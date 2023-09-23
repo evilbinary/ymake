@@ -1,3 +1,6 @@
+PYTHON=python3.11
+
+
 all: test
 
 test:
@@ -7,17 +10,17 @@ test-v:
 	pytest ymake/ytests.py -s
 
 install-py:
-	pip3 install pytest colorama networkx colorlog
+	$(PYTHON) -m pip install dask[distributed] pytest colorama networkx colorlog
 
 run:
-	python3 tests/ya.py 
+	$(PYTHON) tests/ya.py  -vD
 
 y:
-	@cd ~/dev/c/YiYiYa && python3 ya.py
+	@cd ~/dev/c/YiYiYa && $(PYTHON) ya.py
 
 
 upload:
-	python3 -m twine upload dist/* --verbose
+	$(PYTHON) -m twine upload dist/* --verbose
 
 dist:
-	python3 -m build
+	$(PYTHON) -m build

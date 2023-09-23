@@ -6,7 +6,12 @@
 # ********************************************************************
 from .log import log
 from .function import *
+# from dask.distributed import Client, as_completed
+from concurrent.futures import ThreadPoolExecutor
+import subprocess
 
+
+data_list=[]
 
 def get_build_dir(target,key):
     build_dir=target.get(key)
@@ -60,13 +65,15 @@ def get_target_cflags(target):
 
 def get_target_ldflags(target):
     flags=[]
-    # print('ldflags======>', target.get('ldflags') )
     if target.get('ldflags'):
         flags+=target.get('ldflags')
-    if target.get('toolchain'):
-        toolchain=nodes_get_type_and_name('toolchain',target.get('toolchain'))
-        if toolchain.get('ldflags'):
-            flags+= toolchain.get('ldflags')
+    toolchain=  target.get('toolchain')
+    if not toolchain:
+        toolchain_name = node_get_parent(target,'toolchain')
+        toolchain=nodes_get_type_and_name('toolchain',toolchain_name)
+        
+    if toolchain and toolchain.get('ldflags'):
+        flags+= toolchain.get('ldflags')
 
     flags+=node_get_parent_all(target,'ldflags')
 
@@ -80,6 +87,7 @@ def get_target_ldflags(target):
 
     flags=list(dict.fromkeys(flags))
     
+    log.debug('ldflags======>{}'.format(flags))
     return flags
 
 def gcc_build(tool,target,opt={}):
@@ -92,8 +100,6 @@ def gcc_build(tool,target,opt={}):
     modify_file_objs=[]
     
     log.debug('{} {} build {}'.format(target.get('type'),target.get('name'),file_objs))
-
-
 
     build_dir=get_build_dir(target,'build-dir')
     build_obj_dir=get_build_dir(target,'build-obj-dir')
@@ -140,6 +146,7 @@ def gcc_build(tool,target,opt={}):
     
     total_nodes=len(modify_file_objs)+1
     progress=0
+    build_commands=[]
     for obj in modify_file_objs:
         
         obj_name=get_object_name(obj)
@@ -147,12 +154,13 @@ def gcc_build(tool,target,opt={}):
         build_obj=os.path.join(build_obj_dir,obj_name)
         log.debug('build_obj=>{} {}'.format(obj,obj_name))
 
-        cmd(tool.get("cc"),[obj]+cflags+includedirs+['-c','-o',build_obj] )
+        build_commands.append([tool.get("cc"),[obj]+cflags+includedirs+['-c','-o',build_obj] ])
 
         progress+=1
         print_progress(progress,total_nodes,obj_name, opt)
         
-    
+    process_build(build_commands)
+
     file_objs=[os.path.join(build_obj_dir,get_object_name(item)) for item in file_objs]
 
     ldflags=get_target_ldflags(target)
@@ -162,14 +170,32 @@ def gcc_build(tool,target,opt={}):
         return
 
     if target.get('kind')=='static':
-        cmd(tool.get("ar"),['-r',build_target]+file_objs )
+         build_commands.append([tool.get("ar"),['-r',build_target]+file_objs ])
     elif target.get('kind')=='shared':
         flags+=['-shared']
-        cmd(tool.get("ld"),file_objs+['-o',build_target]+ ldflags )
+        build_commands.append([tool.get("ld"),file_objs+['-o',build_target]+ ldflags ])
     else:
-        cmd(tool.get("ld"),file_objs+['-o',build_target]+ ldflags )
-    
+        build_commands.append([tool.get("ld"),file_objs+['-o',build_target]+ ldflags ])
+
+    process_build(build_commands)
+
     progress+=1
     print_progress(progress,total_nodes,build_target,opt)
 
 
+def process_build(compile_commands):
+    executor = ThreadPoolExecutor(max_workers=4)
+    futures = [executor.submit(cmd, command[0],command[1] ) for command in compile_commands]
+    for future in futures:
+        log.debug('ret={}'.format(future.result()))
+
+
+# def run_job():
+    # client = Client()
+
+    # futures = [client.submit(process_data, data) for data in data_list]
+
+    # results = [future.result() for future in as_completed(futures)]
+
+    # for result in results:
+    #     print('result==>',result)

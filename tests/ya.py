@@ -9,7 +9,7 @@ sys.path.append('..')
 sys.path.append('.')
 sys.path.append('../..')
 
-from ymake import *
+from ymake.yaya import *
 
 project("yiyiya",
     version='12.0',
