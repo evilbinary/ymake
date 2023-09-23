@@ -10,7 +10,7 @@ test-v:
 	pytest ymake/ytests.py -s
 
 install-py:
-	$(PYTHON) -m pip install dask[distributed] pytest colorama networkx colorlog
+	$(PYTHON) -m pip install build pytest colorama networkx colorlog #dask[distributed]
 
 run:
 	$(PYTHON) tests/ya.py  -vD
@@ -22,5 +22,6 @@ y:
 upload:
 	$(PYTHON) -m twine upload dist/* --verbose
 
-dist:
+dist: ymake/*.py
+	rm -rf dist
 	$(PYTHON) -m build
