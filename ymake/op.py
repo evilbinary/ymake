@@ -8,12 +8,16 @@ import re
 import os
 import subprocess
 from .function import *
-
+import shutil
+import glob
+import math
 
 mod_os = type("os", (), {})
 mod_path = type("path", (), {})
 mod_string= type("string", (), {})
 mod_io= type("io", (), {})
+
+mod_math= type("math", (), {})
 
 def scriptdir():
     caller_frame = inspect.currentframe().f_back
@@ -59,17 +63,33 @@ def cmd(cmd,args=[],env=None):
         raise Exception(error.decode())
 
 def cmdstr(s):
+    s=s.replace('  ',' ')
+    s=s.replace('  ',' ')
     cmds=s.split(' ')
-    print('cmd str=>{}'.format(s))
+    cmds=[s for s in cmds if s != '']
+    
+    print('cmdstr cmds=>{}'.format(cmds))
     cmd(cmds[0],cmds[1:])
 
     pass
 
+def cp(src,dest):
+    # cmdstr('cp -r '+src+' '+dest)
+
+    file_list = glob.glob(src)
+    print('file-list',file_list)
+    # 逐个复制文件
+    for file_path in file_list:
+        if os.path.isdir(file_path):
+            shutil.copytree(file_path, dest, dirs_exist_ok=True)
+        else:
+            shutil.copy(file_path,dest)
 
 mod_os.scriptdir=scriptdir
 mod_os.execv =cmd
 mod_os.exec =cmdstr
-
+mod_os.cp = cp
+mod_os.filesize=os.path.getsize
 
 def path_join(a,b):
     ret=os.path.join(a,b)
@@ -78,10 +98,15 @@ def path_join(a,b):
 
     return ret
 
+def find(str1,str2):
+    if not str1:
+        return False
+
+    return str1.find(str2)>0
 
 
 mod_path.join=path_join
-
+mod_path.directory=os.path.dirname
 
 
 def gsub(s,r,replace):
@@ -91,7 +116,9 @@ def gsub(s,r,replace):
     print('ret=>',ret)
     return ret
 mod_string.gsub=gsub
-
+mod_string.find=find
 
 mod_io.open=open
+
+mod_math.ceil=math.ceil
 

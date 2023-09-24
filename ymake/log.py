@@ -36,7 +36,5 @@ handler.setFormatter(LowercaseColoredFormatter(
     }
 ))
 
-log.addHandler(handler)
-
 # 将处理器添加到日志记录器
 log.addHandler(handler)

@@ -106,7 +106,7 @@ def rule_build(target):
         for h in hook:
             rule_fill(r,target,h)
 
-def hook_run(target,key):
+def call_hook_event(target,key):
     log.debug('hook run =>{} {}'.format(key,target.get('name') ))
     hook =target.get(key)
     if hook:
@@ -152,7 +152,7 @@ def configfile_build(target):
             file.close()
 
 def build_prepare(target):
-    hook_run(target,'on_config')
+    call_hook_event(target,'on_config')
 
     files= target.get('files')
     file_objs=target.get('file-objs')
@@ -172,7 +172,7 @@ def build_prepare(target):
     rule_build(target)
 
 def gcc_build(tool,target,opt={}):
-    hook_run(target,'before_build')
+    call_hook_event(target,'before_build')
 
     configfile_build(target)
     file_objs=target.get("file-objs")
@@ -231,7 +231,7 @@ def gcc_build(tool,target,opt={}):
     total_nodes=len(modify_file_objs)+1
     build_commands=[]
 
-    hook_run(target,'on_build')
+    call_hook_event(target,'on_build')
     for obj in modify_file_objs:
         
         obj_name=get_object_name(obj)
@@ -263,7 +263,7 @@ def gcc_build(tool,target,opt={}):
 
     process_build(build_commands,progress_info)
 
-    hook_run(target,'after_build')
+    call_hook_event(target,'after_build')
 
 def build_cmd(command,info):
     target=command[0]

@@ -24,7 +24,7 @@ def get_format(str,data):
     try:
         return str.format(**data)
     except Exception as e:
-        log.warn('format {}'.format(e))
+        log.warn('get format {} {} {}'.format(str,e,data))
         return str
 
 def get_formats(l,data):
@@ -95,6 +95,9 @@ class Node(dict):
             ret.append(file)
         return ret
 
+    def objectfiles(self):
+        return self.get('file-objs')
+
     def set(self,key,val):
         self[key]=val
 
@@ -107,11 +110,18 @@ class Node(dict):
         return None
 
     def get(self,key):
-        if key=='arch_type':
+        if key in['arch_type','arch' ]:
             return node_get_parent(self,key)
         if key in self:
             return self[key]
         return None
+
+    def get_arch(self):
+        return self.get('arch')
+
+    def get_arch_type(self):
+        return self.get('arch_type')
+
 
 def is_same_level(n1,n2):
     if node_level.get(n1.get('type'))== node_level.get(n2.get('type')):
@@ -213,3 +223,13 @@ def nodes_get_type_and_name(ty,name):
         if n.get('type')== ty and n.get('name')==name :
             return n
     return None
+
+def nodes_get_all_type(ty):
+    ret=[]
+    for n in nodes:
+        if n.get('type')== ty:
+            ret.append(n)
+    for n in node_stack:
+        if n.get('type')== ty:
+            ret.append(n)
+    return ret

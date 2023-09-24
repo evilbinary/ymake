@@ -26,7 +26,6 @@ version='0.1.7'
 
 verborse=''
 
-
 def build_graph(project):
     graph={}    
     if project.get('type')=='target':
@@ -114,7 +113,8 @@ def node_dump(node):
     print(node.get('type'),d )
     pass
 
-def build():
+
+def build(name):
     nodes.extend(node_stack)
     node_stack.clear()
 
@@ -139,7 +139,20 @@ def build():
         else:
             compile(p,graph)
 
+def run(name):
+    nodes.extend(node_stack)
+    node_stack.clear()
+    target=nodes_get_type_and_name('target',name)
+    if target:
+        build_prepare(target)
+        call_hook_event(target,'before_run')
+        call_hook_event(target,'on_run')
+    else:
+        print('target {}{}{} not found to run, target list: '.format(Fore.MAGENTA,name,Style.RESET_ALL))
 
+        targets=nodes_get_all_type('target')
+        for target in targets:
+            print('    {}'.format(target.get('name')))
 
 # 默认工具
 toolchain('gcc',build=gcc_build)
@@ -148,6 +161,7 @@ if platform.system()=='Darwin':
     add_ldflags('-arch', platform.machine())
 elif platform.system()=='Linux':
     add_ldflags('-lc')
+
 
 toolchain('arm-none-eabi',prefix='arm-none-eabi-',build=gcc_build)
 toolchain('arm-none-eabi',prefix='arm-none-eabi-',build=gcc_build)
@@ -169,10 +183,25 @@ parser.add_argument('target',nargs='?', default=None, help='build target')
 parser.add_argument('--option',nargs='?', default=None, help='option')
 parser.add_argument('-v',nargs='?', default=None, help='verborse debug')
 
+parser.add_argument('-r','-run',nargs='?', default=None, help='Run the project target.')         
+parser.add_argument('-b','-build',nargs='?', default=None, help='build the project target.')         
+
+
 # 解析命令行参数
 args = parser.parse_args()
 
 verborse=args.v
-if args.v=='D':
-    log.setLevel(logging.DEBUG)
+
+def process():
+    if args.v=='D':
+        log.setLevel(logging.DEBUG)
+    elif args.v=='I':
+        log.setLevel(logging.INFO)
+    if args.b:
+        build(args.b)
+    if args.r:
+        run(args.r)
     
+
+
+

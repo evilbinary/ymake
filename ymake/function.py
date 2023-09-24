@@ -23,7 +23,7 @@ import argparse
 import inspect
 import hashlib
 import datetime
-from .op import mod_os,mod_path,mod_string,cmd,shell,mod_io
+from .op import mod_os,mod_path,mod_string,cmd,shell,mod_io,mod_math
 
 def project(name, **kwargs):
     targets = kwargs.pop('targets', [])
@@ -301,12 +301,12 @@ def add_cxxflags(*cflags):
     pass
 
 def add_ldflags(*ldflags,force=False):
+
     ldflags=get_list_args(ldflags)
     cur=node_current()
-
     ldflags=[format_target_var(cur,item) for item in ldflags ]
     # print('============>ldflags',ldflags)
-
+    
     node_extend('ldflags',ldflags)
 
 def has_cflags(*cflags):
@@ -444,6 +444,35 @@ def get_include(target):
     includedirs=['-I' + item for item in includedirs]
     return includedirs
 
+def is_host(*name):
+    name=list(name)
+    if 'mac' in name:
+        name+=['darwin']
+
+    if platform.system().lower() in name:
+        return True
+    return False
+
+def cprint(text):
+    colors = {
+        'black': '\033[30m',
+        'red': '\033[31m',
+        'green': '\033[32m',
+        'yellow': '\033[33m',
+        'blue': '\033[34m',
+        'magenta': '\033[35m',
+        'cyan': '\033[36m',
+        'white': '\033[37m',
+        'reset': '\033[0m'
+    }
+
+    for color in colors:
+        placeholder = f'${{{color}}}'
+        if placeholder in text:
+            text = text.replace(placeholder, colors[color])
+
+    text = text.replace('${clear}', colors['reset'])
+    print(text)
 
 def check_module(module_name):
     module_spec = importlib.util.find_spec(module_name)
@@ -527,11 +556,14 @@ def import_source(file):
     module.path=mod_path
     module.string=mod_string
     module.io=mod_io
-
+    module.math= mod_math
 
     #utils
     module.cmd=cmd
     module.shell=shell
+    module.cprint=cprint
+    module.is_host=is_host
+
     
     module_spec.loader.exec_module(module)
 
