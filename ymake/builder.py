@@ -13,21 +13,9 @@ import subprocess
 
 data_list=[]
 
-def get_build_dir(target,key):
-    build_dir=target.get(key)
-    if not build_dir:
-        build_dir=target.get('project').get(key)
-
-    build_dir=format_target_var(target,build_dir)
-    # print(target.get('name'),'build dir=',build_dir)
-
-    build_dir=os.path.normpath(build_dir)
-
-    return build_dir
-
 
 def get_build_target(target):
-    build_dir=get_build_dir(target,'build-dir')
+    build_dir=node_get_formated(target,'build-dir')
     ext=''
     prefix=''
     if target.get('kind')=='static':
@@ -45,6 +33,9 @@ def get_object_name(obj,full=False):
     if full:
         obj_file_name=obj
     parts = obj_file_name.rsplit('.c', 1)
+    if len(parts)<=1:
+        parts = obj_file_name.rsplit('.s', 1)
+
     new_obj_name = '.o'.join(parts)
     return new_obj_name
 
@@ -81,16 +72,53 @@ def get_target_ldflags(target):
     if deps:
         for d in deps:
             n=nodes_get_type_and_name('target',d)
-            n_build_dir=get_build_dir(n,'build-dir')
+            n_build_dir=node_get_formated(n,'build-dir')
+            flags+=['-L'+n_build_dir]            
             n_target=get_build_target(n)
-            flags+=['-L'+n_build_dir , '-l'+d]
+
+            if n.get('kind')=='static' or n.get('kind')=='shared':
+                flags+=['-l'+d]
 
     flags=list(dict.fromkeys(flags))
     
     log.debug('ldflags======>{}'.format(flags))
     return flags
 
+def rule_fill(rule,target,key):
+    if rule.get(key):
+        if target.get('key'):
+            target[key].extend(key,rule.get(key))
+        else:
+            target[key]=[rule.get(key)]
+
+def rule_build(target):
+    rules=target.get('rules')
+    if not rules:
+        return
+    for rule_name in rules:
+        r=nodes_get_type_and_name('rule',rule_name)
+        if not r:
+            log.error('not found rule {}'.format(rule_name))
+            raise Exception('not found rule '+rule_name)
+            return None
+
+        hook=['on_load','after_load','on_config','before_build', 'on_build','after_build']
+        for h in hook:
+            rule_fill(r,target,h)
+
+def hook_run(target,key):
+    hook =target.get(key)
+    if hook:
+        if callable(hook):
+            hook(target)
+        else:
+            for h in hook:
+                if h:
+                    h(target)
+
 def gcc_build(tool,target,opt={}):
+    hook_run(target,'before_build')
+
     file_objs=target.get("file-objs")
     if not file_objs:
         log.warn("build target {} not found file {}".
@@ -101,8 +129,8 @@ def gcc_build(tool,target,opt={}):
     
     log.debug('{} {} build {}'.format(target.get('type'),target.get('name'),file_objs))
 
-    build_dir=get_build_dir(target,'build-dir')
-    build_obj_dir=get_build_dir(target,'build-obj-dir')
+    build_dir=node_get_formated(target,'build-dir')
+    build_obj_dir=node_get_formated(target,'build-obj-dir')
     
     log.debug('build_dir=>{} build_obj_dir=>{}'.format(build_dir,build_obj_dir))
 
@@ -146,6 +174,8 @@ def gcc_build(tool,target,opt={}):
     
     total_nodes=len(modify_file_objs)+1
     build_commands=[]
+
+    hook_run(target,'on_build')
     for obj in modify_file_objs:
         
         obj_name=get_object_name(obj)
@@ -172,11 +202,12 @@ def gcc_build(tool,target,opt={}):
     elif target.get('kind')=='shared':
         flags+=['-shared']
         build_commands.append([build_target,tool.get("ld"),file_objs+['-o',build_target]+ ldflags ])
-    else:
+    elif target.get('kind')=='binary':
         build_commands.append([build_target,tool.get("ld"),file_objs+['-o',build_target]+ ldflags ])
 
     process_build(build_commands,progress_info)
 
+    hook_run(target,'after_build')
 
 def build_cmd(command,info):
     target=command[0]

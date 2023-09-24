@@ -84,6 +84,7 @@ def compile(project,graph):
             'progress':i,
             'total_nodes':total_nodes
         }
+        rule_build(target)
         toolchain.get('build')(toolchain,target,opt)
         progress = i + 1
         print_progress(progress,total_nodes,node)

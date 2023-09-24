@@ -11,7 +11,6 @@ import os
 import glob
 import importlib
 import importlib.util
-import subprocess
 import re
 import math
 import platform 
@@ -24,6 +23,7 @@ import argparse
 import inspect
 import hashlib
 import datetime
+from .op import mod_os,mod_path,mod_string,cmd,shell,mod_io
 
 def project(name, **kwargs):
     targets = kwargs.pop('targets', [])
@@ -64,11 +64,10 @@ def target(name, **kwargs):
             break
         node_end()
         parent=node_current()
-
-    node = {
+    node = Node({
         'name': name,
         'type':'target',
-        'kind': '',
+        'kind': 'binary',
         'deps': [],
         'files': [],
         'file-objs':[],
@@ -76,9 +75,16 @@ def target(name, **kwargs):
         'file-path': relative_dir_name,
         'project': parent,
         'includedirs':[],
-        'file-includedirs':[]
-    }
+        'file-includedirs':[],
+    })
+
     node.update(kwargs)
+
+
+    def targetfile():
+        return node.get('name')
+
+    node['targetfile']=targetfile
 
     if parent:
         # print('add target',name,' parent:',parent.get('type'),parent.get('name') )
@@ -143,18 +149,35 @@ def add_rules(*rule_name):
     node_extend('rules',rule_name)
 
 
-
 def set_extensions(*exts):
     exts=get_list_args(exts)
     node_extend('extensions',exts)
 
 def on_build_file(fn):
     cur=node_current()
-    node_set('on_build_file',fn)
+    node_extend('on_build_file',fn)
 
 def on_build(fn):
     cur=node_current()
-    node_set('on_build',fn)
+    node_extend('on_build',fn)
+
+def on_run(fn):
+    cur=node_current()
+    node_extend('on_run',fn)
+
+def after_build(fn):
+    cur=node_current()
+    node_extend('after_build',fn)
+
+def before_run(fn):
+    cur=node_current()
+    node_extend('before_run',fn)
+
+def on_load(fn):
+    cur=node_current()
+    node_extend('on_load',fn)
+
+
 
 def set_configdir(d):
     node_set('configdir',d)
@@ -238,47 +261,6 @@ def file_match(patterns,root='.'):
         log.error('pattherns type error {}'.format(type(patterns)) )
     return matches
 
-
-
-def scriptdir():
-    caller_frame = inspect.currentframe().f_back
-    caller_file_path = inspect.getframeinfo(caller_frame).filename
-    simplified_path = os.path.normpath(caller_file_path)
-    dir_name=os.path.dirname(simplified_path)
-    return dir_name
-
-def path_join(a,b):
-    ret=os.path.join(a,b)
-
-    ret=os.path.normpath(ret)
-
-    return ret
-
-
-def get_fromat(str,data):
-    try:
-        return str.format(**data)
-    except Exception as e:
-        return str
-
-def get_fromats(l,data):
-    ret=[]
-    for i in l:
-        new=get_fromat(i,data)
-        ret.append(new)
-    return ret
-
-def format_target_var(target,var):
-    target_name=node_get_parent(target,'name')
-    target_plat=node_get_parent(target,'plat')
-    target_mode=node_get_parent(target,'mode')
-    target_arch=node_get_parent(target,'arch')
-    data={}
-    data['name']=target_name
-    data['plat']=target_plat
-    data['mode']=target_mode
-    data['arch']=target_arch
-    return get_fromat(var,data)
 
 def add_includedirs(*path,public=False):
     log.debug('add includedirs {}'.format(path))
@@ -389,6 +371,11 @@ def target_end():
     if cur and cur.get('type')=='target':
         node_end()
 
+def rule_end():
+    cur=node_current()
+    if cur and cur.get('type')=='rule':
+        node_end()
+
 def get_plat():
     cur=node_current()
     plat= node_get_parent(cur,'plat')
@@ -414,7 +401,9 @@ def add_subs(*path):
     paths= file_match(path,dir_name)
     for p in paths:
         try:
+            node_save()
             import_source(p)
+            node_restore()
         except FileNotFoundError:
             print('file not found ',p)
         except ImportError as e:
@@ -423,8 +412,11 @@ def add_subs(*path):
         except Exception as e:
             print('error import file',p,e)
             e.with_traceback()
-    
+
+    # node_end()
     pass
+
+includes=add_subs
 
 
 def is_file_modified(source_file,target_file):
@@ -438,41 +430,6 @@ def is_file_modified(source_file,target_file):
         return source_modified > output_modified
     except:
         return True
-
-
-def shell(cmd,args,env=None):
-    process=None
-    if env:
-        process = subprocess.Popen(cmds, shell=True, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    else:
-        process = subprocess.Popen(cmds, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    output, error = process.communicate()
-    if process.returncode == 0:
-        pass
-    else:
-        log.error(error.decode())
-        raise Exception(error.decode())
-
-
-def cmd(cmd,args,env=None):
-    cmds = [cmd]+args
-    log.debug('cmds =>{}'.format(cmds))
-
-    print(' '.join(cmds))
-    process=None
-    if env:
-        process = subprocess.Popen(cmds, shell=False, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    else:
-        process = subprocess.Popen(cmds, shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)    
-
-    output, error = process.communicate()
-
-    if process.returncode == 0:
-        pass
-    else:
-        log.error(error.decode())
-        exit(-1)
-        raise Exception(error.decode())
 
 def get_include(target):
     includedirs=list(target.get('file-includedirs'))
@@ -510,12 +467,20 @@ def import_source(file):
     module.rule=rule
     module.project=project
 
+    module.rule_end=rule_end
+    module.project_end=project_end
+    module.toolchain_end=toolchain_end
+
+    module.true=True
+    module.false=False
+
     # module.target=target
     module.add_kind=add_kind
     module.set_kind=set_kind
     module.add_files=add_files
     module.add_deps =add_deps
     module.add_subs= add_subs
+    module.includes= includes
     module.add_includedirs= add_includedirs
     module.add_defines= add_defines
     module.get_arch=get_arch
@@ -546,16 +511,16 @@ def import_source(file):
     module.add_configfiles=add_configfiles
     module.on_build=on_build
     module.on_build_file=on_build_file
+    module.on_run= on_run
+    module.after_build=after_build
+    module.before_run=before_run
+    module.on_load=on_load
 
     #op function
-
-    mod_os = type("os", (), {})
     module.os=mod_os
-    mod_os.scriptdir=scriptdir
-    
-    mod_path = type("path", (), {})
     module.path=mod_path
-    mod_path.join=path_join
+    module.string=mod_string
+    module.io=mod_io
 
 
     #utils
@@ -576,3 +541,5 @@ def print_progress(progress,total_nodes,node,opt=None):
         print("{}[{:.0f}%]:{} {}compile target {}{}"
             .format( Fore.GREEN,progress/total_nodes*100 ,Style.RESET_ALL,Fore.MAGENTA,node,Style.RESET_ALL)
         )
+
+
