@@ -23,11 +23,13 @@ def scriptdir():
     return dir_name
 
 def shell(cmd,args=[],env=None):
+    cmds = [cmd]+args
+    log.debug('shell =>{}'.format(cmds))
     process=None
     if env:
-        process = subprocess.Popen(cmd, shell=True, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        process = subprocess.Popen(cmds, shell=True, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     else:
-        process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        process = subprocess.Popen(cmds, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     output, error = process.communicate()
     if process.returncode == 0:
         pass
@@ -56,14 +58,17 @@ def cmd(cmd,args=[],env=None):
         exit(-1)
         raise Exception(error.decode())
 
-def cmdstr():
+def cmdstr(s):
+    cmds=s.split(' ')
+    print('cmd str=>{}'.format(s))
+    cmd(cmds[0],cmds[1:])
 
     pass
 
 
 mod_os.scriptdir=scriptdir
 mod_os.execv =cmd
-mod_os.exec =shell
+mod_os.exec =cmdstr
 
 
 def path_join(a,b):

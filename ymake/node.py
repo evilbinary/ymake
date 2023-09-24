@@ -34,15 +34,14 @@ def get_formats(l,data):
         ret.append(new)
     return ret
 
-def format_target_var(target,var):
+def get_target_data(target):
+    data={}
     target_name=node_get_parent(target,'name')
     target_plat=node_get_parent(target,'plat')
     target_mode=node_get_parent(target,'mode')
     target_arch=node_get_parent(target,'arch')
     target_build_dir=node_get_parent(target,'build-dir')
 
-    
-    data={}
     data['name']=target_name
     data['plat']=target_plat
     data['mode']=target_mode
@@ -51,6 +50,10 @@ def format_target_var(target,var):
     target_build_dir=get_format(target_build_dir,data)
 
     data['buildir']=target_build_dir
+    return data
+
+def format_target_var(target,var):
+    data=get_target_data(target)
     return get_format(var,data)
 
 

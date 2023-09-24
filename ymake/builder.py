@@ -107,6 +107,7 @@ def rule_build(target):
             rule_fill(r,target,h)
 
 def hook_run(target,key):
+    log.debug('hook run =>{} {}'.format(key,target.get('name') ))
     hook =target.get(key)
     if hook:
         if callable(hook):
@@ -116,9 +117,64 @@ def hook_run(target,key):
                 if h:
                     h(target)
 
+def configfile_build(target):
+    configfiles=target.get('configfiles')
+    configdir= target.get('configdir')
+    configvar = target.get('configvar')
+    file_path = target.get('file-path')
+
+
+    if configfiles and configdir:
+
+        data=get_target_data(target)
+        configdir=get_format(configdir,data)
+
+        log.debug('configfiles {}'.format(configfiles))
+        for configfile in configfiles:
+            f=get_format(configfile,data)
+
+            open_file=os.path.join(file_path,f)
+            open_file=os.path.normpath(open_file)
+
+            log.debug('open file {}'.format(open_file))
+            file=open(open_file,'r')
+            content = file.read()
+            if configvar:
+                for var in configvar:
+                    content=content.replace('${'+var+'}',configvar[var])
+            file.close()
+            
+            out_file=configdir+'/'+f
+            log.debug('write file {}'.format(out_file))
+
+            file=open(out_file,'w')
+            file.write(content)
+            file.close()
+
+def build_prepare(target):
+    hook_run(target,'on_config')
+
+    files= target.get('files')
+    file_objs=target.get('file-objs')
+    files=get_list_args(files)
+    
+    if not file_objs or len(file_objs)< len(files):
+        dir_name=target['file-path'] 
+        log.debug('prepare files=>'.format(files))
+        files=[format_target_var(target,item) for item in files ]
+        log.debug('prepare fomrat files=>'.format(files))
+        
+        match_files=file_match(files,dir_name)
+        
+        log.debug('{} {} prepare add obj files match {} => {} pwd: {}'.format(target.get('type'),target.get('name') ,files,match_files,os.getcwd() ))
+        target['file-objs'].extend(match_files)
+
+    rule_build(target)
+
 def gcc_build(tool,target,opt={}):
     hook_run(target,'before_build')
 
+    configfile_build(target)
     file_objs=target.get("file-objs")
     if not file_objs:
         log.warn("build target {} not found file {}".

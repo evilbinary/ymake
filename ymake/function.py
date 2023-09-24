@@ -56,7 +56,10 @@ def target(name, **kwargs):
     dir_name=os.path.dirname(simplified_path)
 
     relative_dir_name=os.path.relpath(dir_name)
-    log.debug('relpath {}'.format(os.path.relpath(dir_name)))
+    if relative_dir_name.startswith('..'):
+        relative_dir_name='/'.join(relative_dir_name.split(os.sep)[2:])
+
+    log.debug('relpath {}'.format(relative_dir_name))
 
     parent=node_current()
     while parent:
@@ -81,10 +84,10 @@ def target(name, **kwargs):
     node.update(kwargs)
 
 
-    def targetfile():
-        return node.get('name')
+    # def targetfile():
+    #     return node.get('name')
 
-    node['targetfile']=targetfile
+    # node['targetfile']=targetfile
 
     if parent:
         # print('add target',name,' parent:',parent.get('type'),parent.get('name') )
@@ -182,12 +185,15 @@ def on_load(fn):
 def set_configdir(d):
     node_set('configdir',d)
 
-def set_configvar(*var):
-    var=get_list_args(var)
-    node_set('configvar',var)
+def set_configvar(key,val):
+    configvar=node_get('configvar')
+    if not configvar:
+        configvar={}
+    configvar[key]=val
+    node_set('configvar',configvar)
 
 def add_configfiles(file,prefixdir=None):
-    node_extend('configfiles',file)
+    node_extend('configfiles',[file])
 
 
 def add_kind(kind):
