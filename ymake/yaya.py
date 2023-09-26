@@ -22,7 +22,7 @@ from .log import log
 from .function import *
 from .builder import *
 
-version='0.1.7'
+version='0.1.9'
 
 verborse=''
 
@@ -115,8 +115,7 @@ def node_dump(node):
 
 
 def build(name):
-    nodes.extend(node_stack)
-    node_stack.clear()
+    node_finish()
 
     for p in nodes:
         if not p.get('type') in ['project']:
@@ -140,8 +139,8 @@ def build(name):
             compile(p,graph)
 
 def run(name):
-    nodes.extend(node_stack)
-    node_stack.clear()
+    node_finish()
+
     target=nodes_get_type_and_name('target',name)
     if target:
         build_prepare(target)
@@ -184,7 +183,7 @@ parser.add_argument('--option',nargs='?', default=None, help='option')
 parser.add_argument('-v',nargs='?', default=None, help='verborse debug')
 
 parser.add_argument('-r','-run',nargs='?', default=None, help='Run the project target.')         
-parser.add_argument('-b','-build',nargs='?', default=None, help='build the project target.')         
+parser.add_argument('-b','-build',nargs='?', default='all', help='build the project target.')         
 
 
 # 解析命令行参数
@@ -197,6 +196,8 @@ def process():
         log.setLevel(logging.DEBUG)
     elif args.v=='I':
         log.setLevel(logging.INFO)
+    elif args.v=='W':
+        log.setLevel(logging.WARN)
     if args.b:
         build(args.b)
     if args.r:

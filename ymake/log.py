@@ -13,7 +13,7 @@ init()
 
 # 配置日志记录
 log = logging.getLogger()
-log.setLevel(logging.INFO)
+log.setLevel(logging.ERROR)
 
 
 class LowercaseColoredFormatter(colorlog.ColoredFormatter):

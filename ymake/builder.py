@@ -72,12 +72,14 @@ def get_target_ldflags(target):
     if deps:
         for d in deps:
             n=nodes_get_type_and_name('target',d)
-            n_build_dir=node_get_formated(n,'build-dir')
-            flags+=['-L'+n_build_dir]            
-            n_target=get_build_target(n)
+            if n:
+                n_build_dir=node_get_formated(n,'build-dir')
+                flags+=['-L'+n_build_dir]            
+                n_target=get_build_target(n)
+                # print('n get kind {} {} target {}'.format(n.get('kind'),n.get('name'),target.get('name') ))
 
-            if n.get('kind')=='static' or n.get('kind')=='shared':
-                flags+=['-l'+d]
+                if n.get('kind')=='static' or n.get('kind')=='shared':
+                    flags+=['-l'+d]
 
     flags=list(dict.fromkeys(flags))
     

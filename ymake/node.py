@@ -134,7 +134,7 @@ def node_start(n):
         # print('n type',n.get('type'),'====',cur.get('type'),'=>',n.get('type')==cur.get('type') )
         if is_same_level(n,cur):
             node_del=node_stack.pop()
-            nodes.append(node_del)
+            nodes_append(node_del)
         n['parent']=cur
     node_stack.append(n)
 
@@ -143,7 +143,8 @@ def node_start(n):
 def node_end():
     if len(node_stack)>0:
         n=node_stack.pop()
-        nodes.append(n)
+        nodes_append(n)
+        # nodes.append(n)
 
 def node_save():
     n =node_current()
@@ -214,6 +215,38 @@ def node_extend(key,value):
 
 def node_len():
     return len(nodes)+len(node_stack)
+
+
+def node_finish():
+    global nodes
+    # for s in node_stack:
+    #     nodes_append(s)
+    nodes.extend(node_stack)
+    node_stack.clear()
+    all_nodes=nodes_merge(nodes)
+    nodes=all_nodes
+
+def nodes_merge(nodes):
+    unique_list = []
+    seen_names = set()
+
+    for n in nodes:
+        name = n.get('name')+n.get('type')
+        if name not in seen_names:
+            seen_names.add(name)
+            unique_list.append(n)
+    return unique_list
+
+def nodes_append(n):
+    dup=False
+    for nn in nodes:
+        if n.get('name')==nn.get('name') and n.get('type')== nn.get('type'):
+            dup=True
+            break
+    if not dup:
+        nodes.append(n)
+    # else:
+    #     log.error('dup {}'.format(n.get('name') ))
 
 def nodes_get_type_and_name(ty,name):
     for n in nodes:
