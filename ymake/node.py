@@ -17,7 +17,8 @@ node_level={
     'project':0,
     'target':1,
     'rule':1,
-    'toolchain':1
+    'toolchain':1,
+    'option':1
 }
 
 def get_format(str,data):
@@ -224,7 +225,8 @@ def node_finish():
     nodes.extend(node_stack)
     node_stack.clear()
     all_nodes=nodes_merge(nodes)
-    nodes=all_nodes
+    nodes.clear()
+    nodes+=all_nodes
 
 def nodes_merge(nodes):
     unique_list = []

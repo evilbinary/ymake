@@ -129,6 +129,13 @@ def toolchain(name, **kwargs):
     node.update(kwargs)
     node_start(node)
 
+def option(name,**kwargs):
+    node={
+        'name': name,
+        'type':'option',
+    }
+    node.update(kwargs)
+    node_start(node)
 
 def root(name, **kwargs):
     node={
@@ -180,6 +187,14 @@ def on_load(fn):
     cur=node_current()
     node_extend('on_load',fn)
 
+def set_default(t):
+    node_set('default',t)
+
+def set_showmenu(t):
+    node_set('showmenu',t)
+
+def set_description(t):
+    node_set('description',t)
 
 
 def set_configdir(d):
@@ -382,6 +397,11 @@ def rule_end():
     if cur and cur.get('type')=='rule':
         node_end()
 
+def option_end():
+    cur=node_current()
+    if cur and cur.get('type')=='option':
+        node_end()
+
 def get_plat():
     cur=node_current()
     plat= node_get_parent(cur,'plat')
@@ -544,6 +564,8 @@ def import_source(file):
     module.set_configdir=set_configdir
     module.set_configvar=set_configvar
     module.add_configfiles=add_configfiles
+    module.set_default= set_default
+
     module.on_build=on_build
     module.on_build_file=on_build_file
     module.on_run= on_run

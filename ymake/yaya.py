@@ -22,7 +22,10 @@ from .log import log
 from .function import *
 from .builder import *
 
-version='0.1.9'
+true=True
+false=False
+
+version='0.2.0'
 
 verborse=''
 
