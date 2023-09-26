@@ -177,24 +177,31 @@ root('root')
 print('welcome to use {}ymake{} {} ,make world happy ^_^!!'.format(Fore.GREEN,Style.RESET_ALL,version))
 
 
-# 创建参数解析器
-parser = argparse.ArgumentParser(description='help')
-
-# 添加参数
-parser.add_argument('target',nargs='?', default=None, help='build target')
-parser.add_argument('--option',nargs='?', default=None, help='option')
-parser.add_argument('-v',nargs='?', default=None, help='verborse debug')
-
-parser.add_argument('-r','-run',nargs='?', default=None, help='Run the project target.')         
-parser.add_argument('-b','-build',nargs='?', default='all', help='build the project target.')         
-
-
-# 解析命令行参数
-args = parser.parse_args()
-
-verborse=args.v
 
 def process():
+    # 创建参数解析器
+    parser = argparse.ArgumentParser()
+
+    # 添加参数
+    parser.add_argument('-v',nargs='?', default=None, help='verborse debug')
+    parser.add_argument('-r','-run',nargs='?', default=None, help='run the project target.')         
+    parser.add_argument('-b','-build',nargs='?', default='all', help='build the project target.')         
+ 
+    options=nodes_get_all_type('option')
+    for o in options:
+        parser.add_argument('--'+o.get('name'),nargs='?', default=o.get('default'), help=o.get('description'))
+
+     
+    # 解析命令行参数
+    args = parser.parse_args()
+
+    verborse=args.v
+
+    for o in options:
+        n=o.get('name').replace('-','_')
+        v=getattr(args, n)
+        o['value']=v
+
     if args.v=='D':
         log.setLevel(logging.DEBUG)
     elif args.v=='I':

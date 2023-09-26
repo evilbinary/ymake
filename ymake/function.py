@@ -133,6 +133,8 @@ def option(name,**kwargs):
     node={
         'name': name,
         'type':'option',
+        'description':'',
+        'showmenu':False,
     }
     node.update(kwargs)
     node_start(node)
@@ -401,6 +403,16 @@ def option_end():
     cur=node_current()
     if cur and cur.get('type')=='option':
         node_end()
+
+def has_config(*names):
+    count=0
+    for name in names:
+        ret=nodes_get_type_and_name('option',name)
+        if ret:
+            count+=1
+    if count==len(names):
+        return True
+    return False
 
 def get_plat():
     cur=node_current()
