@@ -25,7 +25,7 @@ from .builder import *
 true=True
 false=False
 
-version='0.2.0'
+version='0.2.1'
 
 verborse=''
 
