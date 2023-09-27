@@ -21,6 +21,9 @@ node_level={
     'option':1
 }
 
+def node_set_level(k,v):
+    node_level[k]=v
+
 def get_format(str,data):
     try:
         return str.format(**data)

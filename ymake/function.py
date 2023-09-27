@@ -25,6 +25,8 @@ import hashlib
 import datetime
 from .op import mod_os,mod_path,mod_string,cmd,shell,mod_io,mod_math
 
+buildin_module={}
+
 def project(name, **kwargs):
     targets = kwargs.pop('targets', [])
     node = {
@@ -160,6 +162,8 @@ def add_rules(*rule_name):
     rule_name=get_list_args(rule_name)
     node_extend('rules',rule_name)
 
+def set_toolset(k,v):
+    node_set(k,v)
 
 def set_extensions(*exts):
     exts=get_list_args(exts)
@@ -224,7 +228,6 @@ def set_toolchain(tool):
 
 def set_toolchains(tool):
     set_toolchain(tool)
-
 
 def get_list_args(args):
     ret=[]
@@ -308,7 +311,7 @@ def add_defines(*path):
     node_extend('defines',path)
     pass
 
-def add_cflags(*cflags):
+def add_cflags(*cflags,**kwargs):
     cflags=get_list_args(cflags)
     node_extend('cflags',cflags)
 
@@ -325,6 +328,21 @@ def add_ldflags(*ldflags,force=False):
     # print('============>ldflags',ldflags)
     
     node_extend('ldflags',ldflags)
+
+def add_toolchain_dirs(*path):
+    node_extend('toolchain-dir',path)
+
+def get_toolchain_dirs():
+    n=node_current()
+    return node_get_parent_all(n,'toolchain-dir')
+
+def get_toolchain():
+    n=node_current()
+    tool=node_get_parent(n,'toolchain')
+    return tool
+
+def set_sourcedir(dir):
+    node_set('sourcedir',dir)
 
 def has_cflags(*cflags):
     for flag in cflags:
@@ -361,9 +379,12 @@ def get_system():
     sys= node_get('system')
     return sys
 
-def set_config(key,*val):
-    val=get_list_args(val)
-    node_set(key,val)
+def set_config(key,val,*rest):
+    if len(rest)==0:
+        node_set(key,val)
+    else:
+        node_set(key,[val]+list(rest))
+
 
 def get_config(key):
     cur=node_current()
@@ -578,6 +599,12 @@ def import_source(file):
     module.add_configfiles=add_configfiles
     module.set_default= set_default
 
+    module.has_config=has_config
+    module.get_toolchain=get_toolchain
+    module.set_sourcedir=set_sourcedir
+    module.get_cflags=get_cflags
+
+
     module.on_build=on_build
     module.on_build_file=on_build_file
     module.on_run= on_run
@@ -598,11 +625,17 @@ def import_source(file):
     module.cprint=cprint
     module.is_host=is_host
 
+    for k in buildin_module:
+        setattr(module,k,buildin_module.get(k))
+
     
     module_spec.loader.exec_module(module)
 
     return module
 
+def add_buildin(key,val,level=1):
+    buildin_module[key]=val
+    node_set_level(key,level)
 
 def print_progress(progress,total_nodes,node,opt=None):
     if opt:

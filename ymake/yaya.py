@@ -21,6 +21,7 @@ import logging
 from .log import log
 from .function import *
 from .builder import *
+from .toolchain import toolchains_init
 
 true=True
 false=False
@@ -117,7 +118,7 @@ def node_dump(node):
     pass
 
 
-def build(name):
+def build(name=None):
     node_finish()
 
     for p in nodes:
@@ -156,6 +157,9 @@ def run(name):
         for target in targets:
             print('    {}'.format(target.get('name')))
 
+root('root')
+add_toolchain_dirs('toolchains')
+
 # 默认工具
 toolchain('gcc',build=gcc_build)
 if platform.system()=='Darwin':
@@ -170,9 +174,12 @@ toolchain('arm-none-eabi',prefix='arm-none-eabi-',build=gcc_build)
 toolchain('riscv64-unknown-elf',prefix='riscv64-unknown-elf-',build=gcc_build)
 toolchain('i386-elf',prefix='i386-elf-',build=gcc_build)
 toolchain('i686-elf',prefix='i686-elf-',build=gcc_build)
+
+toolchains_init()
+
 toolchain_end()
 
-root('root')
+
 
 print('welcome to use {}ymake{} {} ,make world happy ^_^!!'.format(Fore.GREEN,Style.RESET_ALL,version))
 

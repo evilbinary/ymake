@@ -10,13 +10,16 @@ sys.path.append('.')
 sys.path.append('../..')
 
 from ymake.yaya import *
+from ymake.cmake import cmake,cmake_end
+from ymake.automake import automake,automake_end
+
 import pytest
 
 
 def test_file_match():
     result =file_match('tests/**/*.c')
     print('files=>',result)
-    assert result == ['tests/a/a.c', 'tests/c/c.c', 'tests/b/b.c']
+    assert result == ['tests/a/a.c', 'tests/c/c.c', 'tests/b/b2.c', 'tests/b/b1.c', 'tests/b/b4.c', 'tests/b/b.c', 'tests/b/b3.c']
 
 def test_grph_cycle():
     graph = {
@@ -234,3 +237,31 @@ def test_rule():
     print('n====>',n)
 
     build()
+
+def test_automake():
+
+    automake('test')
+
+
+def test_option():
+    option('abc')
+
+    a=has_config('abc')
+    assert a==True
+
+    a=has_config('abc1')
+    assert a==False
+
+def test_set_config():
+
+    set_config('abc','111')
+
+    abc=get_config('abc')
+
+    assert abc=='111'
+
+    set_config('a','1','2')
+    a=get_config('a')
+    assert a==['1','2']
+
+   
