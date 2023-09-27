@@ -29,6 +29,7 @@ false=False
 version='0.2.1'
 
 verborse=''
+jobnum=4
 
 def build_graph(project):
     graph={}    
@@ -190,8 +191,10 @@ def process():
     parser = argparse.ArgumentParser()
 
     # 添加参数
-    parser.add_argument('-v',nargs='?', default=None, help='verborse debug')
-    parser.add_argument('-r','-run',nargs='?', default=None, help='run the project target.')         
+    parser.add_argument('-v',nargs='?', default=None, help='verborse info debug error')
+    parser.add_argument('-r','-run',nargs='?', default=None, help='run the project target.')
+    parser.add_argument('-j',nargs='?', default=1, help='job number')
+         
     parser.add_argument('-b','-build',nargs='?', default='all', help='build the project target.')         
  
     options=nodes_get_all_type('option')
@@ -215,10 +218,14 @@ def process():
         log.setLevel(logging.INFO)
     elif args.v=='W':
         log.setLevel(logging.WARN)
+    if args.j:
+        jobnum=args.j
+        set_config('jobnum',jobnum)
     if args.b:
         build(args.b)
     if args.r:
         run(args.r)
+        
     
 
 

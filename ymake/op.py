@@ -26,25 +26,35 @@ def scriptdir():
     dir_name=os.path.dirname(simplified_path)
     return dir_name
 
-def shell(cmd,args=[],env=None):
+def shell(cmd,args=[],**kwargs):
     cmds = [cmd]+args
     log.debug('shell =>{}'.format(cmds))
     process=None
+    env=kwargs.pop('env',None)
+    cwd=kwargs.pop('cwd',None)
+
     if env:
-        process = subprocess.Popen(cmds, shell=True, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        process = subprocess.Popen(cmds, shell=True, env=env,cwd=cwd)
     else:
-        process = subprocess.Popen(cmds, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        process = subprocess.Popen(cmds, shell=True,cwd=cwd)
+
     output, error = process.communicate()
     if process.returncode == 0:
         pass
     else:
-        log.error('msg is {} ,code {}'.format(output,error.decode()))
-        raise Exception(str(error.decode())+str(output))
+        log.error('msg is {} ,code {} {} {}'.format(output,process.returncode,error,process.errors))
+        s=''
+        if error:
+            s+=str(error)
+        if output:
+            s+=str(output)
+        raise Exception(s)
 
 
-def cmd(cmd,args=[],env=None):
+def cmd(cmd,args=[],**kwargs):
     cmds = [cmd]+args
     log.debug('cmds =>{}'.format(cmds))
+    env=kwargs.pop('env',None)
 
     print(' '.join(cmds))
     process=None
@@ -58,8 +68,14 @@ def cmd(cmd,args=[],env=None):
     if process.returncode == 0:
         pass
     else:
-        log.error('msg is {} ,code {}'.format(output,error.decode()))
-        raise Exception(str(error.decode())+str(output))
+        log.error('msg is {} ,code {} {} {}'.format(output,process.returncode,error,process.errors))
+        
+        s=''
+        if error:
+            s+=str(error)
+        if output:
+            s+=str(output)
+        raise Exception(s)
 
 def cmdstr(s):
     s=s.replace('  ',' ')

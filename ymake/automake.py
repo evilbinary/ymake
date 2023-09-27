@@ -5,24 +5,27 @@
 # * 邮箱: rootdebug@163.com
 # ********************************************************************
 from .function import toolchain,add_buildin,node_start,set_toolset,\
-    set_kind,node_current,shell,node_set,cmd
+    set_kind,node_current,shell,node_set,cmd,get_config,node_get_parent
 import os
 
 def build(tool,target,opt={}):
     print('{} build {}'.format(tool.get('name'),target.get('name')))
+
     automake=target.get('build-tool')
-
-    args=automake.get('configure')
-
     sourcedir=target.get('sourcedir')
-    c=os.path.join(sourcedir,tool.get('configure'))
-    c=os.path.normpath(c)
+    args=automake.get('configure')
+    jobnum= node_get_parent(automake,'jobnum')
 
-    print('cmd==>',c,args)
+    try:
+        shell(tool.get('configure'),args,cwd=sourcedir)
+        
+    except Exception as e:
+        print('build error',e)
+        pass
+
+    shell(tool.get('make'),['-j'+str(jobnum)],cwd=sourcedir)
 
     
-    shell(c,args)
-
     pass
     
 def automake(name=None, **kwargs):
@@ -57,6 +60,7 @@ def init():
     set_toolset("autoconf","autoconf")
     set_toolset("libtool","libtool")
     set_toolset("pkg-config","pkg-config")
+    set_toolset("make","make")
 
     add_buildin('automake',automake)
     add_buildin('configure',configure)
