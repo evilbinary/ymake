@@ -38,8 +38,8 @@ def shell(cmd,args=[],env=None):
     if process.returncode == 0:
         pass
     else:
-        log.error(error.decode())
-        raise Exception(error.decode())
+        log.error('msg is {} ,code {}'.format(output,error.decode()))
+        raise Exception(str(error.decode())+str(output))
 
 
 def cmd(cmd,args=[],env=None):
@@ -58,9 +58,8 @@ def cmd(cmd,args=[],env=None):
     if process.returncode == 0:
         pass
     else:
-        log.error(error.decode())
-        exit(-1)
-        raise Exception(error.decode())
+        log.error('msg is {} ,code {}'.format(output,error.decode()))
+        raise Exception(str(error.decode())+str(output))
 
 def cmdstr(s):
     s=s.replace('  ',' ')

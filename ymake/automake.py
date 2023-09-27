@@ -4,10 +4,24 @@
 # * 作者: evilbinary on 01/01/20
 # * 邮箱: rootdebug@163.com
 # ********************************************************************
-from .function import toolchain,add_buildin,node_start,set_toolset,set_kind,node_current
+from .function import toolchain,add_buildin,node_start,set_toolset,\
+    set_kind,node_current,shell,node_set,cmd
+import os
 
 def build(tool,target,opt={}):
-    print('automake build',tool)
+    print('{} build {}'.format(tool.get('name'),target.get('name')))
+    automake=target.get('build-tool')
+
+    args=automake.get('configure')
+
+    sourcedir=target.get('sourcedir')
+    c=os.path.join(sourcedir,tool.get('configure'))
+    c=os.path.normpath(c)
+
+    print('cmd==>',c,args)
+
+    
+    shell(c,args)
 
     pass
     
@@ -22,7 +36,7 @@ def automake(name=None, **kwargs):
     }
     node.update(kwargs)
     if cur:
-        cur['build-tool']=node
+        cur['build-tool']=node    
     node_start(node)
 
 def automake_end():
@@ -31,8 +45,8 @@ def automake_end():
         node_end()
 
 def configure(*args):
+    node_set('configure',list(args))
 
-    pass
 
 def init():
     toolchain('automake',build=build)

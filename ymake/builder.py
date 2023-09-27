@@ -153,6 +153,14 @@ def configfile_build(target):
             file.write(content)
             file.close()
 
+def tool_build(target):
+    tool=target.get('build-tool')
+    if tool:
+        toolchain_name=tool.get('toolchain')
+        toolchain=nodes_get_type_and_name('toolchain',toolchain_name)
+        if toolchain:
+            toolchain.get('build')(toolchain,target)
+
 def build_prepare(target):
     call_hook_event(target,'on_config')
 
@@ -176,6 +184,7 @@ def build_prepare(target):
 def gcc_build(tool,target,opt={}):
     call_hook_event(target,'before_build')
 
+    tool_build(target)
     configfile_build(target)
     file_objs=target.get("file-objs")
     if not file_objs:
