@@ -18,12 +18,12 @@ import inspect
 import hashlib
 import datetime
 import logging
-from .log import log
-from .function import *
-from .builder import *
-from .toolchain import toolchains_init
-from .version import version
-from .globa import verborse,jobnum,mode
+from log import log
+from function import *
+from builder import *
+from toolchain import toolchains_init
+from version import version
+from globa import verborse,jobnum,mode
 
 true=True
 false=False
@@ -248,3 +248,5 @@ except:
     pass
 
 
+if __name__ == '__main__':
+    process()

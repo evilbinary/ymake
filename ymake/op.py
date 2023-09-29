@@ -7,7 +7,7 @@
 import re
 import os
 import subprocess
-from .function import *
+from function import *
 import shutil
 import glob
 import math

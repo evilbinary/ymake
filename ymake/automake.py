@@ -5,11 +5,11 @@
 # * 邮箱: rootdebug@163.com
 # ********************************************************************
 import os
-from .function import toolchain,add_buildin,node_start,set_toolset,\
+from function import toolchain,add_buildin,node_start,set_toolset,\
     set_kind,node_current,shell,node_set,cmd,get_config,node_get_parent,\
     node_get_formated
-from .builder import get_build_target
-from .log import log
+from builder import get_build_target
+from log import log
 
 def build(tool,target,opt={}):
     log.debug('{} build {}'.format(tool.get('name'),target.get('name')))

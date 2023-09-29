@@ -4,7 +4,7 @@
 # * 作者: evilbinary on 01/01/20
 # * 邮箱: rootdebug@163.com
 # ********************************************************************
-from .function import toolchain,add_buildin,node_start,set_toolset,set_kind
+from function import toolchain,add_buildin,node_start,set_toolset,set_kind
 
 def build(tool,target,opt={}):
     print('cmake build',tool)

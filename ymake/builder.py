@@ -4,8 +4,8 @@
 # * 作者: evilbinary on 01/01/20
 # * 邮箱: rootdebug@163.com
 # ********************************************************************
-from .log import log
-from .function import *
+from log import log
+from function import *
 # from dask.distributed import Client, as_completed
 from concurrent.futures import ThreadPoolExecutor
 import subprocess

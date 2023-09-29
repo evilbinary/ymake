@@ -25,3 +25,13 @@ upload: dist
 dist: ymake/*.py
 	rm -rf dist
 	$(PYTHON) -m build
+
+dev:
+	$(PYTHON) setup.py develop
+
+install:
+	$(PYTHON) setup.py install --force
+
+clean:
+	$(PYTHON) setup.py clean --all
+	pip3 uninstall yymake

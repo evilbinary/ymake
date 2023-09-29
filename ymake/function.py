@@ -4,8 +4,8 @@
 # * 作者: evilbinary on 01/01/20
 # * 邮箱: rootdebug@163.com
 # ********************************************************************
-from .node import *
-from .log import log
+from node import *
+from log import log
 from colorama import Fore, Back, Style, init
 import os
 import glob
@@ -23,8 +23,8 @@ import argparse
 import inspect
 import hashlib
 import datetime
-from .op import mod_os,mod_path,mod_string,cmd,shell,mod_io,mod_math
-from .globa import mode
+from op import mod_os,mod_path,mod_string,cmd,shell,mod_io,mod_math
+from globa import mode
 
 buildin_module={}
 

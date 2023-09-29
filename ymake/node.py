@@ -4,7 +4,7 @@
 # * 作者: evilbinary on 01/01/20
 # * 邮箱: rootdebug@163.com
 # ********************************************************************
-from .log import log
+from log import log
 import os
 import inspect
 
@@ -192,7 +192,10 @@ def node_current():
 
 def node_set(key,value):
     n=node_current()
-    n[key]=value
+    if n:
+        n[key]=value
+    else:
+        log.warn('node current is null')
 
 def node_get(key):
     n=node_current()

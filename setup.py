@@ -2,7 +2,7 @@ from time import time
 import setuptools
 import os,sys,re
 
-with open("README.md", "r", encoding="utf-8") as fh:
+with open("README.md", "r") as fh:
     long_description = fh.read()
 setuptools.setup(
     name="yymake",
@@ -21,6 +21,11 @@ setuptools.setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
+    entry_points={
+        'console_scripts': [
+            'ya = yaya:process',
+        ],
+    },
     package_dir={"": "ymake"},
     packages=setuptools.find_packages(where="ymake"),
     install_requires=[
