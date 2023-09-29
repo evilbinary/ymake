@@ -32,7 +32,7 @@ def shell(cmd,args=[],**kwargs):
     process=None
     env=kwargs.pop('env',None)
     cwd=kwargs.pop('cwd',None)
-
+    cmds=" ".join(cmds)
     if env:
         process = subprocess.Popen(cmds, shell=True, env=env,cwd=cwd)
     else:
@@ -55,13 +55,14 @@ def cmd(cmd,args=[],**kwargs):
     cmds = [cmd]+args
     log.debug('cmds =>{}'.format(cmds))
     env=kwargs.pop('env',None)
+    cwd=kwargs.pop('cwd',None)
 
     print(' '.join(cmds))
     process=None
     if env:
-        process = subprocess.Popen(cmds, shell=False, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        process = subprocess.Popen(cmds, shell=False, env=env,cwd=cwd)
     else:
-        process = subprocess.Popen(cmds, shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)    
+        process = subprocess.Popen(cmds, shell=False,cwd=cwd)    
 
     output, error = process.communicate()
 

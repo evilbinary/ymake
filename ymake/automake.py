@@ -4,18 +4,42 @@
 # * 作者: evilbinary on 01/01/20
 # * 邮箱: rootdebug@163.com
 # ********************************************************************
-from .function import toolchain,add_buildin,node_start,set_toolset,\
-    set_kind,node_current,shell,node_set,cmd,get_config,node_get_parent
 import os
+from .function import toolchain,add_buildin,node_start,set_toolset,\
+    set_kind,node_current,shell,node_set,cmd,get_config,node_get_parent,\
+    node_get_formated
+from .builder import get_build_target
+from .log import log
 
 def build(tool,target,opt={}):
-    print('{} build {}'.format(tool.get('name'),target.get('name')))
+    log.debug('{} build {}'.format(tool.get('name'),target.get('name')))
 
     automake=target.get('build-tool')
     sourcedir=target.get('sourcedir')
     args=automake.get('configure')
     jobnum= node_get_parent(automake,'jobnum')
+    build_target=get_build_target(target,'/lib',automake.get('name') )
+    build_dir=node_get_formated(target,'build-dir')
 
+    build_dir_abs=os.path.abspath(build_dir)
+    build_target_abs=os.path.abspath(build_target)
+    build_config_abs=os.path.abspath(os.path.join(sourcedir,tool.get('configure')))
+
+    log.debug('build_config_abs=>{}'.format(build_config_abs))
+    log.debug('build_target_abs=>{}'.format(build_target_abs))
+
+
+    is_modify_target=False
+    if os.path.exists(build_target_abs):
+        is_modify_target=True
+        return
+
+    if not os.path.exists(build_config_abs):
+        shell('aclocal')
+        shell('autoconf')
+        shell('automake --add-missing')
+
+    args+=['--prefix='+build_dir_abs]
     try:
         shell(tool.get('configure'),args,cwd=sourcedir)
         
@@ -23,7 +47,7 @@ def build(tool,target,opt={}):
         print('build error',e)
         pass
 
-    shell(tool.get('make'),['-j'+str(jobnum)],cwd=sourcedir)
+    shell(tool.get('make'),['install','-j'+str(jobnum)],cwd=sourcedir)
 
     
     pass

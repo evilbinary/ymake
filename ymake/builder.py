@@ -14,7 +14,7 @@ import subprocess
 data_list=[]
 
 
-def get_build_target(target):
+def get_build_target(target,path='',name=''):
     build_dir=node_get_formated(target,'build-dir')
     ext=''
     prefix=''
@@ -24,7 +24,9 @@ def get_build_target(target):
     elif target.get('kind')=='shared':
         ext='.so'
         prefix='lib'
-    out_name=os.path.join(build_dir,prefix+target.get("name")+ext)
+    if not name:
+        name=target.get("name")
+    out_name=os.path.join(build_dir+path,prefix+name+ext)
     # print('build target name ',out_name,build_dir,target.get("name"))
     return out_name
 

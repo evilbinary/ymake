@@ -257,6 +257,10 @@ def add_deps(*deps):
     cur=node_current()
     cur['deps'].extend(deps)
 
+def add_packages(*deps):
+    cur=node_current()
+    cur['deps'].extend(deps)
+
 def script_dir():
     caller_frame = inspect.currentframe().f_back
     caller_file_path = inspect.getframeinfo(caller_frame).filename
@@ -603,6 +607,7 @@ def import_source(file):
     module.get_toolchain=get_toolchain
     module.set_sourcedir=set_sourcedir
     module.get_cflags=get_cflags
+    module.add_packages=add_packages
 
 
     module.on_build=on_build
