@@ -74,6 +74,20 @@ def node_get_formated(target,key):
 
     return build_dir
 
+
+def get_list_args(args):
+    ret=[]
+    for a in args:
+        if isinstance(a,str):
+            s=a.split(' ')
+            if len(s)>0:
+                ret+=[x for x in s if x != '']
+            else:
+                ret.append(a.strip())
+        else:
+            ret+=a
+    return ret
+
 class Node(dict):
     
     # obj={}
@@ -126,8 +140,13 @@ class Node(dict):
     def get_arch_type(self):
         return self.get('arch_type')
 
-    def add(self,key,val,**kwargs):
-        self[key].extend([val])
+    def add(self,key,*val,**kwargs):
+        after=kwargs.pop('after',False)
+        vals=get_list_args(val)
+        if after:
+            self[key][:0]=vals
+        else:
+            self[key].extend(vals)
 
     def plat(self):
         return node_get_parent(self,'plat')
@@ -207,7 +226,7 @@ def node_update(data):
     n=node_current()
     return n.update(data)
 
-def node_extend(key,value):
+def node_extend(key,value,t=1):
     n=node_current()
     if not n.get(key):
         
@@ -221,7 +240,10 @@ def node_extend(key,value):
             n[key]=list(value)
         return value
     # print('get1=>',value)
-    n[key].extend(value)
+    if t==1:
+        n[key].extend(value)
+    else:
+        n[key][:0]=value
 
 def node_len():
     return len(nodes)+len(node_stack)

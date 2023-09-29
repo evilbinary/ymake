@@ -246,18 +246,6 @@ def set_toolchain(tool):
 def set_toolchains(tool):
     set_toolchain(tool)
 
-def get_list_args(args):
-    ret=[]
-    for a in args:
-        if isinstance(a,str):
-            s=a.split(' ')
-            if len(s)>0:
-                ret+=[x for x in s if x != '']
-            else:
-                ret.append(a.strip())
-        else:
-            ret+=a
-    return ret
 
 def add_files(*files,rules=None):
     node_extend('files',files)
@@ -345,14 +333,15 @@ def add_cxxflags(*cflags,**kwargs):
     node_extend('cxxflags',cflags)
     pass
 
-def add_ldflags(*ldflags,force=False):
+def add_ldflags(*ldflags,**kwargs):
+    before=kwargs.pop('before',True)
 
     ldflags=get_list_args(ldflags)
     cur=node_current()
     ldflags=[format_target_var(cur,item) for item in ldflags ]
     # print('============>ldflags',ldflags)
-    
-    node_extend('ldflags',ldflags)
+
+    node_extend('ldflags',ldflags,0)
 
 def add_toolchain_dirs(*path):
     node_extend('toolchain-dir',path)

@@ -96,6 +96,14 @@ def get_target_cflags(target):
 
         return flags
 
+def get_lib_name(path_name):
+    lib=''.join(path_name.rsplit('/')[-1:])
+    lib=lib.replace('.a','')
+    lib=lib.replace('.so','')
+    if lib.startswith('lib'):
+        lib=lib[3:]
+    return lib
+
 def get_target_ldflags(target):
     flags=[]
     if target.get('ldflags'):
@@ -114,14 +122,28 @@ def get_target_ldflags(target):
     if deps:
         for d in deps:
             n=nodes_get_type_and_name('target',d)
-            if n:
-                n_build_dir=node_get_formated(n,'build-dir')
-                flags+=['-L'+n_build_dir]            
-                n_target=get_build_target(n)
-                # print('n get kind {} {} target {}'.format(n.get('kind'),n.get('name'),target.get('name') ))
+            if not n:
+                continue            
+            if not (n.get('kind')=='static' or n.get('kind')=='shared'):
+                continue
+        
+            n_build_dir=node_get_formated(n,'build-dir')
+            lib_file=get_build_target(n)
+            if os.path.exists(lib_file):
+                flags+=['-L'+n_build_dir]
+                flags+=['-l'+d]
+            else:
+                ext='.a'
+                if n.get('kind')=='shared':
+                    ext='.so'
+                n_build_dir=os.path.join(n_build_dir,n.get('name'))+'/lib/'
+                lib_files=file_match(n_build_dir+'*'+ext)
+                log.debug('====>lib_file {}'.format(lib_files))
+                flags=['-L'+n_build_dir]+flags
+                for lib in lib_files:
+                    flags=['-l'+get_lib_name(lib)]+flags
 
-                if n.get('kind')=='static' or n.get('kind')=='shared':
-                    flags+=['-l'+d]
+    log.debug('ldflags no uniq======>{}'.format(flags))
 
     flags=list(dict.fromkeys(flags))
     
