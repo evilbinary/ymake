@@ -47,7 +47,7 @@ def get_target_cflags(target):
             flags+=target.get('cflags')
 
         flags+=node_get_parent_all(target,'cflags')
-        print('=============>',node_get_parent_all(target,'cflags'))
+        # print('=============>',node_get_parent_all(target,'cflags'))
         # print('defines======================>',target.get('defines') ,target )
 
         defined=node_get_parent_all(target,'defines')
