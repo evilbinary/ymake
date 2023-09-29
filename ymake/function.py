@@ -24,6 +24,7 @@ import inspect
 import hashlib
 import datetime
 from .op import mod_os,mod_path,mod_string,cmd,shell,mod_io,mod_math
+from .globa import mode
 
 buildin_module={}
 
@@ -42,7 +43,7 @@ def project(name, **kwargs):
         'cache-dir':'.cache',
         'arch':'',
         'plat':'',
-        'mode':'release',
+        'mode': mode if mode else 'release',
         'arch_type':''
     }
     node.update(kwargs)

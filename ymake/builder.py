@@ -58,7 +58,7 @@ def get_target_include(target):
                 n_build_dir=node_get_formated(n,'build-dir')
                 include=get_includedirs(n)
                 n_build_dir=os.path.join(n_build_dir,n.get('name'))
-                include=['-I' + os.path.join(n_build_dir,item) for item in include]
+                include=['-I' + os.path.relpath(os.path.join(n_build_dir,item)) for item in include]
                 include=include + get_include(n)
                 includes+=include
                 includes+=get_target_include(n)
@@ -152,13 +152,18 @@ def get_target_ldflags(target):
 
 def rule_fill(rule,target,key):
     if rule.get(key):
-        if target.get('key'):
-            target[key].extend(key,rule.get(key))
+        if target.get(key):
+            target[key].extend(rule.get(key))
         else:
             target[key]=[rule.get(key)]
 
 def rule_build(target):
     rules=target.get('rules')
+    if not rules:
+        rules=[]
+    r=node_get_parent(target,'rules')
+    if r:
+        rules+=r
     if not rules:
         return
     for rule_name in rules:
@@ -168,7 +173,7 @@ def rule_build(target):
             raise Exception('not found rule '+rule_name)
             return None
 
-        hook=['on_load','after_load','on_config','before_build', 'on_build','after_link','after_build']
+        hook=['on_load','after_load','on_config','before_build', 'on_build','after_link','after_build','cflags','ldflags']
         for h in hook:
             rule_fill(r,target,h)
 
@@ -320,13 +325,12 @@ def gcc_build(tool,target,opt={}):
 
         build_obj=os.path.join(build_obj_dir,obj_name)
         log.debug('build_obj=>{} {}'.format(obj,obj_name))
-
-        if obj.endswith(".c"):
+        if obj[-2:] in [".c",".s"]:
             build_commands.append([obj_name,tool.get("cc"),[obj]+cflags+includedirs+['-c','-o',build_obj] ])
         elif obj.endswith(".cpp") or obj_name.endswith(".cc"):
             build_commands.append([obj_name,tool.get("cxx"),[obj]+cxxflags+includedirs+['-c','-o',build_obj] ])
         else:
-            raise Exception('not support build '+obj_name)
+            raise Exception('not support build '+obj_name+' '+obj)
     
     progress_info={'progress':0,'total_nodes':total_nodes,'opt': opt}
     process_build(build_commands,progress_info,jobnum)

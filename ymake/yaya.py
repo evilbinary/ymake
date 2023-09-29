@@ -23,14 +23,13 @@ from .function import *
 from .builder import *
 from .toolchain import toolchains_init
 from .version import version
+from .globa import verborse,jobnum,mode
 
 true=True
 false=False
 
 
 
-verborse=''
-jobnum=4
 
 def build_graph(project):
     graph={}    
@@ -134,7 +133,6 @@ def build(name=None):
         if not p.get('type') in ['project']:
             continue
         # print('project=>',p)
-
         graph=build_graph(p)
         # print('graph=>',graph)
 
@@ -185,25 +183,31 @@ toolchain('i386-elf',prefix='i386-elf-',build=gcc_build)
 toolchain('i686-elf',prefix='i686-elf-',build=gcc_build)
 
 toolchains_init()
-
 toolchain_end()
 
 
+rule('mode.debug')
+add_ldflags("-g")
+rule_end()
+
+rule('mode.release')
+rule_end()
 
 print('welcome to use {}ymake{} {} ,make world happy ^_^!!'.format(Fore.GREEN,Style.RESET_ALL,version))
 
 
-
 def process():
+    global mode,jobnum
     # 创建参数解析器
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(allow_abbrev=True)
 
     # 添加参数
     parser.add_argument('-v',nargs='?', default=None, help='verborse info debug error')
     parser.add_argument('-r','-run',nargs='?', default=None, help='run the project target.')
     parser.add_argument('-j',nargs='?', default=1, help='job number')
-         
-    parser.add_argument('-b','-build',nargs='?', default=None, help='build the project target.')         
+    parser.add_argument('-m','-mode',nargs='?', default=None, help='build mode debug relase')
+    parser.add_argument('-b','-build',nargs='?', default=None, help='build the project target.')
+
  
     options=nodes_get_all_type('option')
     for o in options:
@@ -229,6 +233,9 @@ def process():
     if args.j:
         jobnum=args.j
         set_config('jobnum',int(jobnum))
+    if args.m:
+        mode=args.m
+        set_config('mode',mode)
     if args.b:
         build(args.b)
     else:
@@ -237,6 +244,6 @@ def process():
         run(args.r)
         
     
-
+process()
 
 
