@@ -58,7 +58,7 @@ def find_cycles(graph):
     except nx.NetworkXNoCycle:
         return []
 
-def compile(project,graph):
+def compile(project,graph,name):
     G = nx.DiGraph(graph)
     # 执行拓扑排序
     topological_order = list(nx.topological_sort(G))
@@ -68,16 +68,21 @@ def compile(project,graph):
     # 根据拓扑排序的顺序反向遍历节点，并编译代码
     compiled_code = []
     start_time = datetime.datetime.now()
+    build_target=[]
     for i,node in enumerate(reversed(topological_order)):
         # 编译节点对应的代码
         # print('node===>',node,project.get('target-objs'))
 
         target=project.get('target-objs').get(node)
+        if name:
+            if not target.get('name')==name:
+                continue
         if not target:
             log.error('not found target {}'.format(node))
             return
         if target.get('toolchain'):
             toolchain_name=target.get('toolchain')
+        build_target.append(target)
 
         toolchain=nodes_get_type_and_name('toolchain',toolchain_name)
         if not toolchain:
@@ -96,8 +101,10 @@ def compile(project,graph):
 
     end_time = datetime.datetime.now()
     time_diff=end_time-start_time
-    print("{}build success!{} const {}".format(Fore.GREEN,Style.RESET_ALL,time_diff) )
-    
+    if len(build_target)>0:
+        print("{}build success!{} const {}".format(Fore.GREEN,Style.RESET_ALL,time_diff) )
+    else:
+        print("{}build nothing not target found!{} const {}".format(Fore.GREEN,Style.RESET_ALL,time_diff) )
 
 class CustomEncoder(json.JSONEncoder):
     cache={}
@@ -141,7 +148,7 @@ def build(name=None):
                 print(' -> '.join(cycle))
             print('build failed')
         else:
-            compile(p,graph)
+            compile(p,graph,name)
 
 def run(name):
     node_finish()
@@ -195,7 +202,7 @@ def process():
     parser.add_argument('-r','-run',nargs='?', default=None, help='run the project target.')
     parser.add_argument('-j',nargs='?', default=1, help='job number')
          
-    parser.add_argument('-b','-build',nargs='?', default='all', help='build the project target.')         
+    parser.add_argument('-b','-build',nargs='?', default=None, help='build the project target.')         
  
     options=nodes_get_all_type('option')
     for o in options:
@@ -222,6 +229,8 @@ def process():
         jobnum=args.j
         set_config('jobnum',jobnum)
     if args.b:
+        build(args.b)
+    else:
         build(args.b)
     if args.r:
         run(args.r)
