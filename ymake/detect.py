@@ -7,10 +7,13 @@
 from .function import file_match
 import os
 from .builder import get_lib_name
+from .log import log
 
 class DotDict(dict):
     def __getattr__(self, attr):
         return self.get(attr)
+
+find_cache={}
 
 def find_library(name,path,**kwargs):
     kind=kwargs.pop('kind','static')
@@ -18,17 +21,20 @@ def find_library(name,path,**kwargs):
     if kind=='static':
         ext='*.a'
     name='lib'+name
+    if find_cache.get(name):
+        return find_cache.get(name)
 
     library=DotDict()
     for p in path:
         f=file_match(p+name+ext)
-        print('ff=>',f)
+        log.debug('ff=>{}'.format(f))
         if len(f)>0:
             lib=f[0]
             library['filename']=os.path.basename(lib)
             library['linkdir']=os.path.dirname(lib)
             library['link']=get_lib_name(lib)
             library['kind']=kind
+            find_cache[name]=library
             return library
 
     return None
