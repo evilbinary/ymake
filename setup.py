@@ -1,7 +1,12 @@
 from time import time
 import setuptools
-import os
-sys.path.append('.')
+import os,sys
+
+sys.path.extend([
+    '.',
+    'ymake'
+])
+
 from ymake.version import version
 
 with open("README.md", "r", encoding="utf-8") as fh:
