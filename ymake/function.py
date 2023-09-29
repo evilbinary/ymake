@@ -233,7 +233,11 @@ def get_list_args(args):
     ret=[]
     for a in args:
         if isinstance(a,str):
-            ret.append(a)
+            s=a.split(' ')
+            if len(s)>0:
+                ret+=[x for x in s if x != '']
+            else:
+                ret.append(a.strip())
         else:
             ret+=a
     return ret
@@ -319,7 +323,7 @@ def add_cflags(*cflags,**kwargs):
     cflags=get_list_args(cflags)
     node_extend('cflags',cflags)
 
-def add_cxxflags(*cflags):
+def add_cxxflags(*cflags,**kwargs):
     cflags=get_list_args(cflags)
     node_extend('cxxflags',cflags)
     pass
@@ -389,7 +393,7 @@ def set_config(key,val,*rest):
     else:
         merged_list = []
         if isinstance(val,str):
-            merged_list.append(val)
+            merged_list.append(val.strip())
         else:
             merged_list.extend(val)
         for sublist in rest:

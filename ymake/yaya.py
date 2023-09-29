@@ -75,7 +75,7 @@ def compile(project,graph,name):
 
         target=project.get('target-objs').get(node)
         if name and target:
-            if not target.get('name')==name:
+            if not (target.get('name')==name ):
                 continue
         if not target:
             log.error('not found target {}'.format(node))

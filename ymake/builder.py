@@ -55,6 +55,7 @@ def get_target_include(target):
                 include=get_includedirs(n)
                 n_build_dir=os.path.join(n_build_dir,n.get('name'))
                 include=['-I' + os.path.join(n_build_dir,item) for item in include]
+                include=include + get_include(n)
                 includes+=include
     includes=list(set(includes))
     return includes
