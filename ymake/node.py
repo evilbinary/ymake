@@ -185,6 +185,8 @@ def node_current():
     if len(node_stack)>0:
         return node_stack[-1]
     else:
+        if len(nodes)>0:
+            return nodes[0]
         return None
 
 def node_set(key,value):
