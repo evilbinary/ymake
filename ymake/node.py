@@ -193,6 +193,7 @@ def node_get_parent_all(n,key):
             if isinstance( n.get(key),str):
                 ret.append(key)
             else:
+                print('+====ret=',ret,'==>',n.get(key))
                 ret+=n.get(key)                
         n=n.get('parent')
     return ret

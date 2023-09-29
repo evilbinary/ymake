@@ -44,10 +44,10 @@ def get_object_name(obj,full=False):
 def get_target_cflags(target):
         flags=[]
         if target.get('cflags'):
-            flags+=[target.get('cflags')]
+            flags+=target.get('cflags')
 
         flags+=node_get_parent_all(target,'cflags')
-        # print('=============>',node_get_parent_all(target,'cflags'))
+        print('=============>',node_get_parent_all(target,'cflags'))
         # print('defines======================>',target.get('defines') ,target )
 
         defined=node_get_parent_all(target,'defines')
@@ -240,6 +240,7 @@ def gcc_build(tool,target,opt={}):
     includedirs=get_include(target)
 
     cflags=get_target_cflags(target)
+    log.debug('cflags {}'.format(cflags))
     
     total_nodes=len(modify_file_objs)+1
     build_commands=[]
@@ -260,6 +261,7 @@ def gcc_build(tool,target,opt={}):
     file_objs=[os.path.join(build_obj_dir,get_object_name(item)) for item in file_objs]
 
     ldflags=get_target_ldflags(target)
+    log.debug('ldflags {}'.format(ldflags))
 
     if len(file_objs)==0:
         log.warn('obj file is 0')

@@ -132,6 +132,20 @@ def test_add_cflags():
     cur=node_current()
     assert 'root'==cur.get('name')
 
+def test_add_cflags_array():
+    arch_cflags=['-mcpu=cortex-a7', '-mtune=cortex-a7', '-mfpu=vfpv4', '-mfloat-abi=softfp']
+    plat_cflags= ['-nostdlib', '-nostdinc']
+
+    cflags_before=get_cflags()+arch_cflags+plat_cflags
+
+    add_cflags(arch_cflags)
+    add_cflags(plat_cflags)
+
+    
+    cflags_after=get_cflags()
+
+    assert cflags_before ==cflags_after
+
 def test_target_scope():
 
     add_cflags('-lroot')
@@ -264,4 +278,14 @@ def test_set_config():
     a=get_config('a')
     assert a==['1','2']
 
-   
+
+    
+def test_set_config_array():
+
+
+    arch_cflags=['-mcpu=cortex-a7', '-mtune=cortex-a7', '-mfpu=vfpv4', '-mfloat-abi=softfp']
+    plat_cflags= ['-nostdlib', '-nostdinc']
+
+    set_config('cflags',arch_cflags,plat_cflags)
+
+    assert get_config('cflags')==arch_cflags+plat_cflags

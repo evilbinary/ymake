@@ -387,8 +387,14 @@ def set_config(key,val,*rest):
     if len(rest)==0:
         node_set(key,val)
     else:
-        node_set(key,[val]+list(rest))
-
+        merged_list = []
+        if isinstance(val,str):
+            merged_list.append(val)
+        else:
+            merged_list.extend(val)
+        for sublist in rest:
+            merged_list.extend(sublist)
+        node_set(key,merged_list)
 
 def get_config(key):
     cur=node_current()
