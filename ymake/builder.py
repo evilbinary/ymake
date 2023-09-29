@@ -151,11 +151,17 @@ def get_target_ldflags(target):
     return flags
 
 def rule_fill(rule,target,key):
-    if rule.get(key):
-        if target.get(key):
-            target[key].extend(rule.get(key))
-        else:
-            target[key]=[rule.get(key)]
+    val=rule.get(key)
+    if not val:
+        return
+
+    if not isinstance(val,list):
+        val=[val]
+    
+    if target.get(key):
+        target[key].extend(val)
+    else:
+        target[key]=val
 
 def rule_build(target):
     rules=target.get('rules')

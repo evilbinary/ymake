@@ -197,6 +197,7 @@ print('welcome to use {}ymake{} {} ,make world happy ^_^!!'.format(Fore.GREEN,St
 
 
 def process():
+
     global mode,jobnum
     # 创建参数解析器
     parser = argparse.ArgumentParser(allow_abbrev=True)
@@ -208,12 +209,10 @@ def process():
     parser.add_argument('-m','-mode',nargs='?', default=None, help='build mode debug relase')
     parser.add_argument('-b','-build',nargs='?', default=None, help='build the project target.')
 
- 
     options=nodes_get_all_type('option')
     for o in options:
         parser.add_argument('--'+o.get('name'),nargs='?', default=o.get('default'), help=o.get('description'))
 
-     
     # 解析命令行参数
     args = parser.parse_args()
 
@@ -242,8 +241,10 @@ def process():
         build(args.b)
     if args.r:
         run(args.r)
-        
-    
-process()
+
+try:
+    process()
+except:
+    pass
 
 
