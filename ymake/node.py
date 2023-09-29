@@ -151,6 +151,9 @@ class Node(dict):
     def plat(self):
         return node_get_parent(self,'plat')
 
+    def get_config(self,key):
+        return node_get_parent(self,key)
+
 def is_same_level(n1,n2):
     if node_level.get(n1.get('type'))== node_level.get(n2.get('type')):
         return True
@@ -185,8 +188,6 @@ def node_current():
     if len(node_stack)>0:
         return node_stack[-1]
     else:
-        if len(nodes)>0:
-            return nodes[0]
         return None
 
 def node_set(key,value):
