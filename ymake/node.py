@@ -126,6 +126,11 @@ class Node(dict):
     def get_arch_type(self):
         return self.get('arch_type')
 
+    def add(self,key,val,**kwargs):
+        self[key].extend([val])
+
+    def plat(self):
+        return node_get_parent(self,'plat')
 
 def is_same_level(n1,n2):
     if node_level.get(n1.get('type'))== node_level.get(n2.get('type')):

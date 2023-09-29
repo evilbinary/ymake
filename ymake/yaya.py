@@ -26,7 +26,7 @@ from .toolchain import toolchains_init
 true=True
 false=False
 
-version='0.2.4'
+version='0.2.5'
 
 verborse=''
 jobnum=4

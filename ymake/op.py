@@ -101,11 +101,16 @@ def cp(src,dest):
         else:
             shutil.copy(file_path,dest)
 
+def projectdir():
+    return os.getcwd()
+
 mod_os.scriptdir=scriptdir
 mod_os.execv =cmd
 mod_os.exec =cmdstr
 mod_os.cp = cp
 mod_os.filesize=os.path.getsize
+mod_os.projectdir=projectdir
+mod_os.exists=os.path.exists
 
 def path_join(a,b):
     ret=os.path.join(a,b)

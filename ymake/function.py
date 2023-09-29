@@ -185,9 +185,26 @@ def after_build(fn):
     cur=node_current()
     node_extend('after_build',fn)
 
+def after_link(fn):
+    cur=node_current()
+    node_extend('after_link',fn)
+
+def after_clean(fn):
+    cur=node_current()
+    node_extend('after_clean',fn)
+
+def before_build(fn):
+    cur=node_current()
+    node_extend('before_build',fn)
+
 def before_run(fn):
     cur=node_current()
     node_extend('before_run',fn)
+
+def on_config(fn):
+    cur=node_current()
+    node_extend('on_config',fn)
+
 
 def on_load(fn):
     cur=node_current()
@@ -630,6 +647,12 @@ def import_source(file):
     module.after_build=after_build
     module.before_run=before_run
     module.on_load=on_load
+    module.add_buildin=add_buildin
+    module.before_build=before_build
+    module.after_link=after_link
+    module.after_clean=after_clean
+    module.on_config=on_config
+
 
     #op function
     module.os=mod_os
