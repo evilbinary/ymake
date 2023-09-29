@@ -1,10 +1,14 @@
 from time import time
 import setuptools
+import os
+sys.path.append('.')
+from ymake.version import version
+
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 setuptools.setup(
     name="yymake",
-    version="0.2.5",
+    version=version,
     author="evilbinary",
     author_email="rootntsd@gmail.com",
     description="A corss build dsl make tool",

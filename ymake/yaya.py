@@ -22,11 +22,12 @@ from .log import log
 from .function import *
 from .builder import *
 from .toolchain import toolchains_init
+from .version import version
 
 true=True
 false=False
 
-version='0.2.5'
+
 
 verborse=''
 jobnum=4
