@@ -500,11 +500,15 @@ def is_file_modified(source_file,target_file):
     except:
         return True
 
-def get_include(target):
+def get_include(target,path=''):
     includedirs=list(target.get('file-includedirs'))
-    log.debug('includedirs=>{}'.format(includedirs))
+    log.debug('include dirs=>{}'.format(includedirs))
+    includedirs=['-I' + os.path.join(path,item) for item in includedirs]
+    return includedirs
 
-    includedirs=['-I' + item for item in includedirs]
+def get_includedirs(target,path=''):
+    includedirs=list(target.get('includedirs'))
+    log.debug('includedirs=>{}'.format(includedirs))
     return includedirs
 
 def is_host(*name):

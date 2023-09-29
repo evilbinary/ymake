@@ -74,7 +74,7 @@ def compile(project,graph,name):
         # print('node===>',node,project.get('target-objs'))
 
         target=project.get('target-objs').get(node)
-        if name:
+        if name and target:
             if not target.get('name')==name:
                 continue
         if not target:
@@ -227,7 +227,7 @@ def process():
         log.setLevel(logging.WARN)
     if args.j:
         jobnum=args.j
-        set_config('jobnum',jobnum)
+        set_config('jobnum',int(jobnum))
     if args.b:
         build(args.b)
     else:

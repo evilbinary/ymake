@@ -18,16 +18,19 @@ def build(tool,target,opt={}):
     sourcedir=target.get('sourcedir')
     args=automake.get('configure')
     jobnum= node_get_parent(automake,'jobnum')
-    build_target=get_build_target(target,'/lib',automake.get('name') )
     build_dir=node_get_formated(target,'build-dir')
 
     build_dir_abs=os.path.abspath(build_dir)
-    build_target_abs=os.path.abspath(build_target)
     build_config_abs=os.path.abspath(os.path.join(sourcedir,tool.get('configure')))
+
+    build_dir_target=os.path.join(build_dir_abs,target.get('name'))
+
+    build_target=get_build_target(target,'/'+target.get('name')+'/lib',automake.get('name') )
+    build_target_abs=os.path.abspath(build_target)
+
 
     log.debug('build_config_abs=>{}'.format(build_config_abs))
     log.debug('build_target_abs=>{}'.format(build_target_abs))
-
 
     is_modify_target=False
     if os.path.exists(build_target_abs):
@@ -39,7 +42,7 @@ def build(tool,target,opt={}):
         shell('autoconf')
         shell('automake --add-missing')
 
-    args+=['--prefix='+build_dir_abs]
+    args+=['--prefix='+build_dir_target]
     try:
         shell(tool.get('configure'),args,cwd=sourcedir)
         
@@ -49,7 +52,6 @@ def build(tool,target,opt={}):
 
     shell(tool.get('make'),['install','-j'+str(jobnum)],cwd=sourcedir)
 
-    
     pass
     
 def automake(name=None, **kwargs):

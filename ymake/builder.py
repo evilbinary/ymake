@@ -41,6 +41,24 @@ def get_object_name(obj,full=False):
     new_obj_name = '.o'.join(parts)
     return new_obj_name
 
+
+def get_target_include(target):
+    includes=[]
+    includes+=get_include(target)
+
+    deps=target.get('deps')
+    if deps:
+        for d in deps:
+            n=nodes_get_type_and_name('target',d)
+            if n:
+                n_build_dir=node_get_formated(n,'build-dir')
+                include=get_includedirs(n)
+                n_build_dir=os.path.join(n_build_dir,n.get('name'))
+                include=['-I' + os.path.join(n_build_dir,item) for item in include]
+                includes+=include
+    includes=list(set(includes))
+    return includes
+
 def get_target_cflags(target):
         flags=[]
         if target.get('cflags'):
@@ -200,7 +218,9 @@ def gcc_build(tool,target,opt={}):
 
     build_dir=node_get_formated(target,'build-dir')
     build_obj_dir=node_get_formated(target,'build-obj-dir')
-    
+
+    jobnum= node_get_parent(target,'jobnum')
+
     log.debug('build_dir=>{} build_obj_dir=>{}'.format(build_dir,build_obj_dir))
 
     if not os.path.exists(build_dir):
@@ -237,7 +257,8 @@ def gcc_build(tool,target,opt={}):
     if len(modify_file_objs)<=0 and not is_modify_target:
         return
         
-    includedirs=get_include(target)
+    includedirs=get_target_include(target)
+    log.debug("includedirs {}".format(includedirs))
 
     cflags=get_target_cflags(target)
     log.debug('cflags {}'.format(cflags))
@@ -256,7 +277,7 @@ def gcc_build(tool,target,opt={}):
         build_commands.append([obj_name,tool.get("cc"),[obj]+cflags+includedirs+['-c','-o',build_obj] ])
     
     progress_info={'progress':0,'total_nodes':total_nodes,'opt': opt}
-    process_build(build_commands,progress_info)
+    process_build(build_commands,progress_info,jobnum)
 
     file_objs=[os.path.join(build_obj_dir,get_object_name(item)) for item in file_objs]
 
@@ -276,7 +297,7 @@ def gcc_build(tool,target,opt={}):
     elif target.get('kind')=='binary':
         build_commands.append([build_target,tool.get("ld"),file_objs+['-o',build_target]+ ldflags ])
 
-    process_build(build_commands,progress_info)
+    process_build(build_commands,progress_info,jobnum)
 
     call_hook_event(target,'after_build')
 
@@ -290,9 +311,8 @@ def build_cmd(command,info):
 
     print_progress(info['progress'],info['total_nodes'],target, info['opt'])
 
-def process_build(compile_commands,info):
-
-    executor = ThreadPoolExecutor(max_workers=4)
+def process_build(compile_commands,info,jobnum):
+    executor = ThreadPoolExecutor(max_workers=jobnum)
     futures = [executor.submit(build_cmd, command,info ) for command in compile_commands]
     for future in futures:
         log.debug('ret={}'.format(future.result()))
