@@ -1,19 +1,12 @@
 from time import time
 import setuptools
-import os,sys
-
-sys.path.extend([
-    '.',
-    'ymake'
-])
-
-from ymake.version import version
+import os,sys,re
 
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 setuptools.setup(
     name="yymake",
-    version=version,
+    version="0.2.8",
     author="evilbinary",
     author_email="rootntsd@gmail.com",
     description="A corss build dsl make tool",
@@ -36,5 +29,5 @@ setuptools.setup(
         'networkx', 
         'colorlog'
     ],
-    python_requires=">=3.0",
+    python_requires=">=2.6",
 )

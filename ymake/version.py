@@ -4,5 +4,5 @@
 # * 作者: evilbinary on 01/01/20
 # * 邮箱: rootdebug@163.com
 # ********************************************************************
-
-version='0.2.7'
+import pkg_resources
+version=pkg_resources.get_distribution('yymake').version
