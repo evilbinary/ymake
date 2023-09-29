@@ -168,7 +168,7 @@ def rule_build(target):
             raise Exception('not found rule '+rule_name)
             return None
 
-        hook=['on_load','after_load','on_config','before_build', 'on_build','after_build']
+        hook=['on_load','after_load','on_config','before_build', 'on_build','after_link','after_build']
         for h in hook:
             rule_fill(r,target,h)
 
@@ -350,7 +350,7 @@ def gcc_build(tool,target,opt={}):
         build_commands.append([build_target,tool.get("ld"),file_objs+['-o',build_target]+ ldflags ])
 
     process_build(build_commands,progress_info,jobnum)
-
+    call_hook_event(target,'after_link')
     call_hook_event(target,'after_build')
 
 def build_cmd(command,info):
