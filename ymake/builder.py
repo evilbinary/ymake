@@ -34,9 +34,13 @@ def get_object_name(obj,full=False):
     obj_file_name=obj
     if full:
         obj_file_name=obj
-    parts = obj_file_name.rsplit('.c', 1)
-    if len(parts)<=1:
-        parts = obj_file_name.rsplit('.s', 1)
+    parts=[]
+    if obj_file_name.endswith('.cpp'):
+        parts = obj_file_name.rsplit('.cpp', 1)
+    else:
+        parts = obj_file_name.rsplit('.c', 1)
+        if len(parts)<=1:
+            parts = obj_file_name.rsplit('.s', 1)
 
     new_obj_name = '.o'.join(parts)
     return new_obj_name
@@ -57,8 +61,25 @@ def get_target_include(target):
                 include=['-I' + os.path.join(n_build_dir,item) for item in include]
                 include=include + get_include(n)
                 includes+=include
+                includes+=get_target_include(n)
+
     includes=list(set(includes))
     return includes
+
+def get_target_cxxflags(target):
+        flags=[]
+        if target.get('cxxflags'):
+            flags+=target.get('cxxflags')
+
+        flags+=node_get_parent_all(target,'cxxflags')
+        # print('=============>',node_get_parent_all(target,'cflags'))
+        # print('defines======================>',target.get('defines') ,target )
+
+        defined=node_get_parent_all(target,'defines')
+        if defined:
+            flags+=['-D'+item for item in defined]
+
+        return flags
 
 def get_target_cflags(target):
         flags=[]
@@ -264,6 +285,9 @@ def gcc_build(tool,target,opt={}):
     cflags=get_target_cflags(target)
     log.debug('cflags {}'.format(cflags))
     
+    cxxflags=get_target_cxxflags(target)
+    log.debug('cxxflags {}'.format(cxxflags))
+
     total_nodes=len(modify_file_objs)+1
     build_commands=[]
 
@@ -275,7 +299,12 @@ def gcc_build(tool,target,opt={}):
         build_obj=os.path.join(build_obj_dir,obj_name)
         log.debug('build_obj=>{} {}'.format(obj,obj_name))
 
-        build_commands.append([obj_name,tool.get("cc"),[obj]+cflags+includedirs+['-c','-o',build_obj] ])
+        if obj.endswith(".c"):
+            build_commands.append([obj_name,tool.get("cc"),[obj]+cflags+includedirs+['-c','-o',build_obj] ])
+        elif obj.endswith(".cpp") or obj_name.endswith(".cc"):
+            build_commands.append([obj_name,tool.get("cxx"),[obj]+cxxflags+includedirs+['-c','-o',build_obj] ])
+        else:
+            raise Exception('not support build '+obj_name)
     
     progress_info={'progress':0,'total_nodes':total_nodes,'opt': opt}
     process_build(build_commands,progress_info,jobnum)
