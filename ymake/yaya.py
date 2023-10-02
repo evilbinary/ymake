@@ -23,11 +23,19 @@ from function import *
 from builder import *
 from toolchain import toolchains_init
 from version import version
-from globa import verborse,jobnum,mode
+from globa import verborse,jobnum,mode,is_init,is_process
 
 true=True
 false=False
 
+
+module_path=['..',
+    '.',
+    '../../',
+    '../../..',
+    'xenv']
+
+sys.path.extend(module_path)
 
 
 
@@ -128,7 +136,6 @@ def node_dump(node):
 
 def build(name=None):
     node_finish()
-
     for p in nodes:
         if not p.get('type') in ['project']:
             continue
@@ -164,41 +171,45 @@ def run(name):
         for target in targets:
             print('    {}'.format(target.get('name')))
 
-root('root')
-add_toolchain_dirs('toolchains')
+def init():
+    global is_init
+    root('root')
+    add_toolchain_dirs('toolchains')
 
-# 默认工具
-toolchain('gcc',build=gcc_build)
-if platform.system()=='Darwin':
-    add_ldflags('-lSystem')
-    add_ldflags('-arch', platform.machine())
-elif platform.system()=='Linux':
-    add_ldflags('-lc')
-
-
-toolchain('arm-none-eabi',prefix='arm-none-eabi-',build=gcc_build)
-toolchain('arm-none-eabi',prefix='arm-none-eabi-',build=gcc_build)
-toolchain('riscv64-unknown-elf',prefix='riscv64-unknown-elf-',build=gcc_build)
-toolchain('i386-elf',prefix='i386-elf-',build=gcc_build)
-toolchain('i686-elf',prefix='i686-elf-',build=gcc_build)
-
-toolchains_init()
-toolchain_end()
+    # 默认工具
+    toolchain('gcc',build=gcc_build)
+    if platform.system()=='Darwin':
+        add_ldflags('-lSystem')
+        add_ldflags('-arch', platform.machine())
+    elif platform.system()=='Linux':
+        add_ldflags('-lc')
 
 
-rule('mode.debug')
-add_ldflags("-g")
-rule_end()
+    toolchain('arm-none-eabi',prefix='arm-none-eabi-',build=gcc_build)
+    toolchain('arm-none-eabi',prefix='arm-none-eabi-',build=gcc_build)
+    toolchain('riscv64-unknown-elf',prefix='riscv64-unknown-elf-',build=gcc_build)
+    toolchain('i386-elf',prefix='i386-elf-',build=gcc_build)
+    toolchain('i686-elf',prefix='i686-elf-',build=gcc_build)
 
-rule('mode.release')
-rule_end()
+    toolchains_init()
+    toolchain_end()
 
-print('welcome to use {}ymake{} {} ,make world happy ^_^!!'.format(Fore.GREEN,Style.RESET_ALL,version))
 
+    rule('mode.debug')
+    add_ldflags("-g")
+    rule_end()
+
+    rule('mode.release')
+    rule_end()
+
+    print('welcome to use {}ymake{} {} ,make world happy ^_^!!'.format(Fore.GREEN,Style.RESET_ALL,version))
 
 def process():
+    global mode,jobnum,is_process
+    if is_process:
+        return
 
-    global mode,jobnum
+    is_process=True
     # 创建参数解析器
     parser = argparse.ArgumentParser(allow_abbrev=True)
 
@@ -242,11 +253,10 @@ def process():
     if args.r:
         run(args.r)
 
-try:
+
+if __name__ == 'yaya':
+    init()
+    ya=__import__('ya',is_process,is_init)
     process()
-except:
+else:
     pass
-
-
-if __name__ == '__main__':
-    process()

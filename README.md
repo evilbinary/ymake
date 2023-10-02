@@ -10,6 +10,8 @@ pip install yymake
 
 ## 使用
 
+新建ya.py
+
 ```python
 from ymake.yaya import *
 
@@ -21,6 +23,10 @@ project("yiyiya",
 
 add_subs('./**/*.py')
 
-process()
+```
 
+编译运行
+
+```bash
+ya
 ```

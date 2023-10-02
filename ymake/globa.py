@@ -8,3 +8,6 @@
 verborse=''
 jobnum=4
 mode=None
+
+is_init=False
+is_process=False
