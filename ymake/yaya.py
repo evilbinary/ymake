@@ -256,7 +256,11 @@ def process():
 
 if __name__ == 'yaya':
     init()
-    ya=__import__('ya',is_process,is_init)
+    ya=os.path.join(os.getcwd(),"./ya.py")
+    ya=os.path.normpath(ya)
+    add_subs(ya)
     process()
+
+
 else:
     pass

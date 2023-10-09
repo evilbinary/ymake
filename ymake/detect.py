@@ -4,10 +4,10 @@
 # * 作者: evilbinary on 01/01/20
 # * 邮箱: rootdebug@163.com
 # ********************************************************************
-from .function import file_match
+from function import file_match
 import os
-from .builder import get_lib_name
-from .log import log
+from builder import get_lib_name
+from log import log
 
 class DotDict(dict):
     def __getattr__(self, attr):

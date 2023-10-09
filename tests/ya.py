@@ -9,7 +9,7 @@ sys.path.append('..')
 sys.path.append('.')
 sys.path.append('../..')
 
-from ymake.yaya import *
+# from ymake.yaya import *
 
 project("yiyiya",
     version='12.0',
@@ -21,5 +21,3 @@ project("yiyiya",
 )
 
 add_subs('./**/*.py')
-
-build()

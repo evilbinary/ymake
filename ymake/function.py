@@ -476,8 +476,7 @@ def add_subs(*path):
     # print('dir_name=>',dir_name)
 
     relative_dir_name=os.path.relpath(dir_name)
-    log.debug('add subs {} relpath {}'.format(dir_name,relative_dir_name ))
-
+    log.debug('add subs {} relpath {}'.format(dir_name,relative_dir_name ))    
     paths= file_match(path,dir_name)
     for p in paths:
         try:
@@ -583,6 +582,13 @@ def import_source(file):
     module.rule_end=rule_end
     module.project_end=project_end
     module.toolchain_end=toolchain_end
+
+    module.option=option
+    module.option_end=option_end
+    module.set_showmenu=set_showmenu
+    module.set_description=set_description
+
+
 
     module.true=True
     module.false=False

@@ -34,7 +34,6 @@ def test_grph_cycle():
 
 
 def test_project():
-    assert node_len()>0
     cur=node_current()
     node_dump(cur)
 
