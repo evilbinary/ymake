@@ -13,9 +13,6 @@ pip install yymake
 新建ya.py
 
 ```python
-from ymake.yaya import *
-
-
 project("yiyiya",
     version='12.0',
     desc='yiyiya is an os',

@@ -205,54 +205,56 @@ def init():
     print('welcome to use {}ymake{} {} ,make world happy ^_^!!'.format(Fore.GREEN,Style.RESET_ALL,version))
 
 def process():
-    global mode,jobnum,is_process
-    if is_process:
-        return
+    try:
+        global mode,jobnum,is_process
+        if is_process:
+            return
 
-    is_process=True
-    # 创建参数解析器
-    parser = argparse.ArgumentParser(allow_abbrev=True)
+        is_process=True
+        # 创建参数解析器
+        parser = argparse.ArgumentParser(allow_abbrev=True)
 
-    # 添加参数
-    parser.add_argument('-v',nargs='?', default=None, help='verborse info debug error')
-    parser.add_argument('-r','-run',nargs='?', default=None, help='run the project target.')
-    parser.add_argument('-j',nargs='?', default=1, help='job number')
-    parser.add_argument('-m','-mode',nargs='?', default=None, help='build mode debug relase')
-    parser.add_argument('-b','-build',nargs='?', default=None, help='build the project target.')
+        # 添加参数
+        parser.add_argument('-v',nargs='?', default=None, help='verborse info debug error')
+        parser.add_argument('-r','-run',nargs='?', default=None, help='run the project target.')
+        parser.add_argument('-j',nargs='?', default=1, help='job number')
+        parser.add_argument('-m','-mode',nargs='?', default=None, help='build mode debug relase')
+        parser.add_argument('-b','-build',nargs='?', default=None, help='build the project target.')
 
-    options=nodes_get_all_type('option')
-    for o in options:
-        parser.add_argument('--'+o.get('name'),nargs='?', default=o.get('default'), help=o.get('description'))
+        options=nodes_get_all_type('option')
+        for o in options:
+            parser.add_argument('--'+o.get('name'),nargs='?', default=o.get('default'), help=o.get('description'))
 
-    # 解析命令行参数
-    args = parser.parse_args()
+        # 解析命令行参数
+        args = parser.parse_args()
 
-    verborse=args.v
+        verborse=args.v
 
-    for o in options:
-        n=o.get('name').replace('-','_')
-        v=getattr(args, n)
-        o['value']=v
+        for o in options:
+            n=o.get('name').replace('-','_')
+            v=getattr(args, n)
+            o['value']=v
 
-    if args.v=='D':
-        log.setLevel(logging.DEBUG)
-    elif args.v=='I':
-        log.setLevel(logging.INFO)
-    elif args.v=='W':
-        log.setLevel(logging.WARN)
-    if args.j:
-        jobnum=args.j
-        set_config('jobnum',int(jobnum))
-    if args.m:
-        mode=args.m
-        set_config('mode',mode)
-    if args.b:
-        build(args.b)
-    else:
-        build(args.b)
-    if args.r:
-        run(args.r)
-
+        if args.v=='D':
+            log.setLevel(logging.DEBUG)
+        elif args.v=='I':
+            log.setLevel(logging.INFO)
+        elif args.v=='W':
+            log.setLevel(logging.WARN)
+        if args.j:
+            jobnum=args.j
+            set_config('jobnum',int(jobnum))
+        if args.m:
+            mode=args.m
+            set_config('mode',mode)
+        if args.b:
+            build(args.b)
+        else:
+            build(args.b)
+        if args.r:
+            run(args.r)
+    except (KeyboardInterrupt):
+        pass
 
 if __name__ == 'yaya':
     init()
@@ -260,7 +262,6 @@ if __name__ == 'yaya':
     ya=os.path.normpath(ya)
     add_subs(ya)
     process()
-
 
 else:
     pass
