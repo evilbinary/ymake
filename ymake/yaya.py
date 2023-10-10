@@ -181,7 +181,9 @@ def init():
         add_ldflags('-arch', platform.machine())
     elif platform.system()=='Linux':
         add_ldflags('-lc')
-
+        cur=node_current()
+        prefix= cur.get('prefix')
+        set_toolset('ld',prefix+'gcc')
 
     toolchain('arm-none-eabi',prefix='arm-none-eabi-',build=gcc_build)
     toolchain('arm-none-eabi',prefix='arm-none-eabi-',build=gcc_build)
