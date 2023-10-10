@@ -8,6 +8,14 @@ import os
 import math
 import platform 
 import sys
+
+module_path=['..',
+    '.',
+    '../../',
+    '../../..',
+    'xenv']
+sys.path.extend(module_path)
+
 import json
 import networkx as nx
 from colorama import Fore, Back, Style, init
@@ -27,16 +35,6 @@ from globa import verborse,jobnum,mode,is_init,is_process
 
 true=True
 false=False
-
-
-module_path=['..',
-    '.',
-    '../../',
-    '../../..',
-    'xenv']
-
-sys.path.extend(module_path)
-
 
 
 def build_graph(project):

@@ -6,7 +6,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 setuptools.setup(
     name="yymake",
-    version="0.3.2",
+    version="0.3.8",
     author="evilbinary",
     author_email="rootntsd@gmail.com",
     description="A corss build dsl make tool",
@@ -30,7 +30,7 @@ setuptools.setup(
         ],
     },
     package_dir={"": "ymake"},
-    packages=setuptools.find_packages(where="ymake"),
+    packages=["."],
     install_requires=[
         'pytest',
         'colorama',

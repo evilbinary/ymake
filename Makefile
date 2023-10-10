@@ -22,7 +22,7 @@ y:
 upload: dist
 	$(PYTHON) -m twine upload dist/* --verbose
 
-dist: ymake/*.py
+dist: ymake/*.py setup.py
 	rm -rf dist
 	$(PYTHON) -m build
 
