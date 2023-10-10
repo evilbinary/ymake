@@ -18,7 +18,9 @@ project("yiyiya",
     desc='yiyiya is an os',
 )
 
-add_subs('./**/*.py')
+target('hello')
+add_kind("binary")
+add_files("./main.c")
 
 ```
 
