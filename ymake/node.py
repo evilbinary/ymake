@@ -242,6 +242,8 @@ def node_op_extend(n,key,value,t=True,nodup=False):
         # print('get=>',value,'==>',list(value) )
         if isinstance(value,list):
             n[key]=value
+        elif isinstance(value,tuple):
+            n[key]=list(value)
         else:
             n[key]=[value]
         return value
