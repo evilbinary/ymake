@@ -164,11 +164,12 @@ def rule_build(target):
     rules=target.get('rules')
     if not rules:
         rules=[]
-    r=node_get_parent(target,'rules')
+    r=node_get_parent_all(target,'rules')
     if r:
         rules+=r
     if not rules:
         return
+    rules=list(set(rules))
     for rule_name in rules:
         r=nodes_get_type_and_name('rule',rule_name)
         if not r:

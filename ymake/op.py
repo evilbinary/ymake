@@ -93,7 +93,7 @@ def cp(src,dest):
     # cmdstr('cp -r '+src+' '+dest)
 
     file_list = glob.glob(src)
-    log.debug('file-list',file_list)
+    log.debug('file-list {}'.format(file_list))
     # 逐个复制文件
     for file_path in file_list:
         if os.path.isdir(file_path):
