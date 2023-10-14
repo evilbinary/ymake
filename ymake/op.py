@@ -84,7 +84,7 @@ def cmdstr(s):
     cmds=s.split(' ')
     cmds=[s for s in cmds if s != '']
     
-    print('cmdstr cmds=>{}'.format(cmds))
+    log.debug('cmdstr cmds=>{}'.format(cmds))
     cmd(cmds[0],cmds[1:])
 
     pass
@@ -93,7 +93,7 @@ def cp(src,dest):
     # cmdstr('cp -r '+src+' '+dest)
 
     file_list = glob.glob(src)
-    print('file-list',file_list)
+    log.debug('file-list',file_list)
     # 逐个复制文件
     for file_path in file_list:
         if os.path.isdir(file_path):
