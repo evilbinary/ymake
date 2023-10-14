@@ -83,12 +83,9 @@ def get_target_cxxflags(target):
 
 def get_target_cflags(target):
         flags=[]
-        if target.get('cflags'):
-            flags+=target.get('cflags')
 
         flags+=node_get_parent_all(target,'cflags')
         # print('=============>',node_get_parent_all(target,'cflags'))
-        # print('defines======================>',target.get('defines') ,target )
 
         defined=node_get_parent_all(target,'defines')
         if defined:
@@ -154,14 +151,14 @@ def rule_fill(rule,target,key):
     val=rule.get(key)
     if not val:
         return
+    
+    log.debug('rule fill rule key={} target name ={} target key {} rule key=>{}'.format(key,target.get('name'),target.get(key),val ))
 
     if not isinstance(val,list):
         val=[val]
-    
-    if target.get(key):
-        target[key].extend(val)
-    else:
-        target[key]=val
+
+    node_op_extend(target,key,val,1,True)
+
 
 def rule_build(target):
     rules=target.get('rules')
@@ -237,6 +234,8 @@ def tool_build(target):
             toolchain.get('build')(toolchain,target)
 
 def build_prepare(target):
+    rule_build(target)
+
     call_hook_event(target,'on_config')
 
     files= target.get('files')
@@ -254,7 +253,7 @@ def build_prepare(target):
         log.debug('{} {} prepare add obj files match {} => {} pwd: {}'.format(target.get('type'),target.get('name') ,files,match_files,os.getcwd() ))
         target['file-objs'].extend(match_files)
 
-    rule_build(target)
+    
 
 def gcc_build(tool,target,opt={}):
     call_hook_event(target,'before_build')
@@ -316,10 +315,10 @@ def gcc_build(tool,target,opt={}):
     log.debug("includedirs {}".format(includedirs))
 
     cflags=get_target_cflags(target)
-    log.debug('cflags {}'.format(cflags))
+    log.debug('{} cflags {}'.format(target.get("name"),cflags))
     
     cxxflags=get_target_cxxflags(target)
-    log.debug('cxxflags {}'.format(cxxflags))
+    log.debug('{} cxxflags {}'.format(target.get("name"),cxxflags))
 
     total_nodes=len(modify_file_objs)+1
     build_commands=[]

@@ -323,6 +323,7 @@ def add_includedirs(*path,public=False):
     cur['file-includedirs'].extend(match_files)
 
 def add_defines(*path):
+    path=get_list_args(path)
     node_extend('defines',path)
     pass
 
@@ -408,8 +409,18 @@ def set_config(key,val,*rest):
             merged_list.extend(sublist)
         node_set(key,merged_list)
 
+def is_mode(m):
+    val=get_config('mode')
+    if val ==m:
+        return True
+    return False
+
 def get_config(key):
     cur=node_current()
+    if not cur:
+        p=nodes_get_all_type('project')
+        if len(p)>0:
+            cur=p[0]
     val= node_get_parent(cur,key)
     return val
 
@@ -613,6 +624,7 @@ def import_source(file):
     module.set_toolchain=set_toolchain
 
     module.is_plat=is_plat
+    module.is_mode=is_mode
     module.set_toolchains=set_toolchains
     module.set_arch_type=set_arch_type
     module.set_arch=set_arch

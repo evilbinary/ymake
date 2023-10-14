@@ -143,10 +143,8 @@ class Node(dict):
     def add(self,key,*val,**kwargs):
         after=kwargs.pop('after',False)
         vals=get_list_args(val)
-        if after:
-            self[key][:0]=vals
-        else:
-            self[key].extend(vals)
+  
+        node_op_extend(self,key,vals,after,True)
 
     def plat(self):
         return node_get_parent(self,'plat')
@@ -234,22 +232,30 @@ def node_update(data):
 
 def node_extend(key,value,t=1):
     n=node_current()
-    if not n.get(key):
-        
-        caller_frame = inspect.currentframe().f_back
-        caller_file_path = inspect.getframeinfo(caller_frame)
+    return node_op_extend(n,key,value,t)
+
+def node_op_extend(n,key,value,t=True,nodup=False):
+    if not n.get(key):       
+        # caller_frame = inspect.currentframe().f_back
+        # caller_file_path = inspect.getframeinfo(caller_frame)
         # print('call==>',caller_file_path)        
         # print('get=>',value,'==>',list(value) )
-        if callable(value):
+        if isinstance(value,list):
             n[key]=value
         else:
-            n[key]=list(value)
+            n[key]=[value]
         return value
-    # print('get1=>',value)
-    if t==1:
+    if nodup:
+        value=list(set(value))
+
+    if t:
         n[key].extend(value)
     else:
         n[key][:0]=value
+    if nodup:
+        n[key]=list(set(n[key]))
+    
+    # print('get1=>',n.get(key),'==',value)
 
 def node_len():
     return len(nodes)+len(node_stack)

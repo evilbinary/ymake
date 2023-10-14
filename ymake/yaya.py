@@ -196,7 +196,11 @@ def init():
 
 
     rule('mode.debug')
-    add_ldflags("-g")
+    def build_config(target):
+        if is_mode("debug"):
+            target.add('cflags',"-g")
+        pass
+    on_config(build_config)
     rule_end()
 
     rule('mode.release')
