@@ -335,6 +335,8 @@ def gcc_build(tool,target,opt={}):
             build_commands.append([obj_name,tool.get("cc"),[obj]+cflags+includedirs+['-c','-o',build_obj] ])
         elif obj.endswith(".cpp") or obj_name.endswith(".cc"):
             build_commands.append([obj_name,tool.get("cxx"),[obj]+cxxflags+includedirs+['-c','-o',build_obj] ])
+        elif obj.endswith(".o"):
+            pass
         else:
             raise Exception('not support build '+obj_name+' '+obj)
     

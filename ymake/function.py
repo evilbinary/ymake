@@ -25,6 +25,7 @@ import hashlib
 import datetime
 from op import mod_os,mod_path,mod_string,cmd,shell,mod_io,mod_math
 from globa import mode
+from pathlib import Path
 
 buildin_module={}
 
@@ -258,11 +259,19 @@ def add_files(*files,rules=None):
 
     files=[format_target_var(cur,item) for item in files ]
 
-    match_files=file_match(files,dir_name)
+    # match_files=file_match(files,dir_name)
     
-    log.debug('{} {} add files match {} => {} pwd: {}'.format(cur.get('type'),cur.get('name') ,files,match_files,os.getcwd() ))
-    cur['file-objs'].extend(match_files)
-    
+    #log.debug('{} {} add files match {} => {} pwd: {}'.format(cur.get('type'),cur.get('name') ,files,match_files,os.getcwd() ))
+    #cur['file-objs'].extend(match_files)
+
+def get_build_dir():
+    cur=node_current()
+    return node_get_parent(cur,'build-dir')
+
+def get_build_obj_dir():
+    cur=node_current()
+    build_obj_dir=node_get_parent(cur,'build-obj-dir')
+    return build_obj_dir
 
 def add_deps(*deps):
     cur=node_current()
@@ -292,10 +301,15 @@ def file_match(patterns,root='.'):
 
     elif isinstance(patterns,list) or isinstance(patterns,tuple):
         for pp in patterns:
-            p=os.path.join(root,pp)
-            p=os.path.normpath(p)
-            
-            matches+= glob.glob(p)
+            p1=os.path.join(root,pp)
+            p=os.path.normpath(p1)
+            g=glob.glob(p)
+            if len(g)==0:
+                # for i in Path(root).glob(pp):
+                #    matches.append(str(i)) 
+                pass
+            else:
+                matches+= g
             log.debug('root=>{} patterns=>{} p=>{} matches=>{}'.format(root,pp,p,matches))
 
     else:
@@ -661,6 +675,9 @@ def import_source(file):
     module.after_link=after_link
     module.after_clean=after_clean
     module.on_config=on_config
+
+    module.get_build_dir=get_build_dir
+    module.get_build_obj_dir = get_build_obj_dir
 
 
     #op function
