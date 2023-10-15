@@ -707,8 +707,8 @@ def add_buildin(key,val,level=1):
 
 def print_progress(progress,total_nodes,node,opt=None):
     if opt:
-        print("{}[{:.0f}%]:{} {}compile target {}{}"
-            .format( Fore.GREEN,opt.get('progress')/opt.get('total_nodes')*100+progress/total_nodes*10 ,Style.RESET_ALL,Fore.MAGENTA,node,Style.RESET_ALL)
+        print("{}[{:.0f}.{:.0f}%]:{} {}compile target {}{}"
+            .format( Fore.GREEN,opt.get('progress')/opt.get('total_nodes')*100,progress/total_nodes*100,Style.RESET_ALL,Fore.MAGENTA,node,Style.RESET_ALL)
         )
     else:
         print("{}[{:.0f}%]:{} {}compile target {}{}"
