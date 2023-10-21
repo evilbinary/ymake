@@ -26,6 +26,14 @@ def get_build_target(target,path='',name=''):
         prefix='lib'
     if not name:
         name=target.get("name")
+    
+    build_tool=target.get('build-tool')
+    if build_tool:
+        d=build_tool.get('build-dir')
+        if d:
+            build_dir=d
+            name=build_tool.get('name')
+
     out_name=os.path.join(build_dir+path,prefix+name+ext)
     # print('build target name ',out_name,build_dir,target.get("name"))
     return out_name
@@ -125,20 +133,21 @@ def get_target_ldflags(target):
                 continue
         
             n_build_dir=node_get_formated(n,'build-dir')
-            lib_file=get_build_target(n)
-            if os.path.exists(lib_file):
-                flags+=['-L'+n_build_dir]
-                flags+=['-l'+d]
-            else:
+            if n.get('build-tool'):
                 ext='.a'
                 if n.get('kind')=='shared':
                     ext='.so'
-                n_build_dir=os.path.join(n_build_dir,n.get('name'))+'/lib/'
-                lib_files=file_match(n_build_dir+'*'+ext)
+                lib_files=file_match(n_build_dir+'/*'+ext)
                 log.debug('====>lib_file {}'.format(lib_files))
                 flags=['-L'+n_build_dir]+flags
                 for lib in lib_files:
                     flags=['-l'+get_lib_name(lib)]+flags
+            else:
+                lib_file=get_build_target(n)
+                if os.path.exists(lib_file):
+                    flags+=['-L'+n_build_dir]
+                    flags+=['-l'+d]
+                
 
     log.debug('ldflags no uniq======>{}'.format(flags))
 
@@ -348,6 +357,16 @@ def gcc_build(tool,target,opt={}):
     is_modify_target=False
     if not os.path.exists(build_target):
         is_modify_target=True
+    
+    # deps change
+    deps=target.get('deps')
+    for d in deps:
+        n=nodes_get_type_and_name('target',d)
+        t=get_build_target(n)
+        is_modify=tool.get('is_modify')(t,t)
+        if is_modify:
+            is_modify_target=True
+
 
     if len(modify_file_objs)<=0 and not is_modify_target:
         call_hook_event(target,'after_link')
@@ -428,6 +447,8 @@ def gcc_build(tool,target,opt={}):
 
     call_hook_event(target,'after_link')
     call_hook_event(target,'after_build')
+
+    # is_modify=tool.get('is_modify')(build_target,build_target)
 
 def build_cmd(command,info):
     target=command[0]

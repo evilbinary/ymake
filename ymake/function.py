@@ -544,7 +544,7 @@ def is_file_modified(source_file,target_file):
             cache.set('mtime:'+target_file,source_modified)
 
         # print('source_file=>',source_file,'target_file->',target_file)
-        # print('source_modified=>',source_modified,'output_modified->',output_modified)
+        # print('source_modified=>',source_modified,'output_modified->',output_modified,'is modify=>',source_modified > output_modified)
         return source_modified > output_modified
     except:
         return True

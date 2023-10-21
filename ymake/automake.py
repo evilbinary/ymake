@@ -25,7 +25,14 @@ def build(tool,target,opt={}):
 
     build_dir_target=os.path.join(build_dir_abs,target.get('name'))
 
-    build_target=get_build_target(target,'/'+target.get('name')+'/lib',automake.get('name') )
+    build_dir_target_re= os.path.join(build_dir,target.get('name'))
+
+    target['build-dir']=build_dir_target_re+'/lib'
+    automake['build-dir']=build_dir_target_re+'/lib'
+
+    build_target=get_build_target(target)
+
+
     build_target_abs=os.path.abspath(build_target)
 
 
