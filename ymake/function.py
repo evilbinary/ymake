@@ -157,6 +157,7 @@ def rule(name, **kwargs):
     node = {
         'name': name,
         'type':'rule',
+        'kind':'rule'
     }
     node.update(kwargs)
     node_start(node)
@@ -258,7 +259,7 @@ def add_files(*files,rules=None):
     files=get_list_args(files)
 
     files=[format_target_var(cur,item) for item in files ]
-
+    node_set('file-rules',rules)
     # match_files=file_match(files,dir_name)
     
     #log.debug('{} {} add files match {} => {} pwd: {}'.format(cur.get('type'),cur.get('name') ,files,match_files,os.getcwd() ))
