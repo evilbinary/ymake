@@ -157,7 +157,6 @@ def rule(name, **kwargs):
     node = {
         'name': name,
         'type':'rule',
-        'kind':'rule'
     }
     node.update(kwargs)
     node_start(node)

@@ -249,12 +249,41 @@ def build_prepare(target):
         files=[format_target_var(target,item) for item in files ]
         log.debug('prepare fomrat files=>'.format(files))
         
-        match_files=file_match(files,dir_name)
-        if len(match_files)<=0:
-            match_files=file_match(files)
+        build_obj_dir=node_get_formated(target,'build-obj-dir')
 
+        match_files=file_match(files,dir_name)
+        obj_files=[]
+        
+        kind=None
+        normal_kind=['c','cc','cxx','cpp','s','h','hpp']
+        for f in match_files:
+            ext=get_ext(f)
+            obj_name=get_object_name(f)
+            build_obj=os.path.join(build_obj_dir,obj_name)
+            obj_files.append({
+                'obj': build_obj,
+                'src': f
+                })
+            if ext not in normal_kind:
+                kind='rule'
+
+        if len(match_files)<=0:
+            match_files=file_match(files)            
+            for f in match_files:
+                obj_name=get_object_name(f)
+                obj_files.append({
+                    'obj': f,
+                    'src': f
+                    })
+                ext=get_ext(f)
+                if ext not in normal_kind:
+                    kind='rule'
+        if kind:
+            target.set('kind',kind)
+        
         log.debug('{} {} prepare add obj files match {} => {} pwd: {}'.format(target.get('type'),target.get('name') ,files,match_files,os.getcwd() ))
-        target['file-objs'].extend(match_files)
+        target['file-objs'].extend(obj_files)
+
 
 def get_ext(name):
     if not name:
@@ -297,18 +326,18 @@ def gcc_build(tool,target,opt={}):
     build_target=get_build_target(target)
 
     file_obj_dirs=set()
-    for file_obj in file_objs:
-        obj_name=get_object_name(file_obj)
-        build_obj=os.path.join(build_obj_dir,obj_name)
+    for file in file_objs:
+        file_src=file.get('src')
+        file_obj=file.get('obj')
 
-        is_modify=tool.get('is_modify')(file_obj,build_obj)
+        is_modify=tool.get('is_modify')(file_src,file_obj)
         if is_modify:
-            modify_file_objs.append(file_obj)
+            modify_file_objs.append(file)
             log.debug('file is modify {}'.format(file_obj))
         else:
             log.debug('file is not modify {}'.format(file_obj))
         
-        file_obj_dir=os.path.dirname(build_obj)
+        file_obj_dir=os.path.dirname(file_obj)
         file_obj_dirs.add(file_obj_dir)
     
     for file_obj_dir in file_obj_dirs:
@@ -337,38 +366,40 @@ def gcc_build(tool,target,opt={}):
 
     extend=target.get('extensions')
     file_rules=target.get('file-rules')
-    if len(modify_file_objs)>0:
+    
+    if is_modify_target:
         call_hook_event(target,'on_build')
 
-    for obj in modify_file_objs:
+    for f in modify_file_objs:
+        src=f.get('src')
+        obj=f.get('obj')
         
         obj_name=get_object_name(obj)
 
-        build_obj=os.path.join(build_obj_dir,obj_name)
         log.debug('build_obj=>{} {}'.format(obj,obj_name))
 
         ext=get_ext(obj)
 
-        if obj[-2:] in [".c",".s"]:
-            build_commands.append([obj_name,tool.get("cc"),[obj]+cflags+includedirs+['-c','-o',build_obj] ])
-        elif obj.endswith(".cpp") or obj_name.endswith(".cc"):
-            build_commands.append([obj_name,tool.get("cxx"),[obj]+cxxflags+includedirs+['-c','-o',build_obj] ])
-        elif obj.endswith(".o"):
+        if src[-2:] in [".c",".s"]:
+            build_commands.append([obj_name,tool.get("cc"),[src]+cflags+includedirs+['-c','-o',obj] ])
+        elif src.endswith(".cpp") or obj_name.endswith(".cc"):
+            build_commands.append([obj_name,tool.get("cxx"),[src]+cxxflags+includedirs+['-c','-o',obj] ])
+        elif src.endswith(".o"):
             pass
         elif ext=='' or ext=='bin':
             pass
         elif file_rules and ext ==file_rules:
             pass
         elif extend and ext in extend:
-            
             pass
         else:
             raise Exception(target.get('name')+' not support build '+obj_name+' '+obj)
     
+
     progress_info={'progress':0,'total_nodes':total_nodes,'opt': opt}
     process_build(build_commands,progress_info,jobnum)
 
-    file_objs=[os.path.join(build_obj_dir,get_object_name(item)) for item in file_objs]
+    file_objs=[item.get('obj') for item in file_objs]
 
     ldflags=get_target_ldflags(target)
     log.debug('ldflags {}'.format(ldflags))
@@ -380,13 +411,18 @@ def gcc_build(tool,target,opt={}):
     build_target_commands=[]
     if target.get('kind')=='static':
          build_target_commands.append([build_target,tool.get("ar"),['-r',build_target]+file_objs ])
+         process_build(build_target_commands,progress_info,jobnum)
     elif target.get('kind')=='shared':
         flags+=['-shared']
         build_target_commands.append([build_target,tool.get("ld"),file_objs+['-o',build_target]+ ldflags ])
+        process_build(build_target_commands,progress_info,jobnum)
     elif target.get('kind')=='binary':
         build_target_commands.append([build_target,tool.get("ld"),file_objs+['-o',build_target]+ ldflags ])
-    if len(build_commands)>0:
         process_build(build_target_commands,progress_info,jobnum)
+    else:
+
+        pass
+    
 
     call_hook_event(target,'after_link')
     call_hook_event(target,'after_build')

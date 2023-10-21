@@ -131,10 +131,8 @@ mod_path.directory=os.path.dirname
 
 
 def gsub(s,r,replace):
-    print('r=',r,'ss=>',s)
     s=s.replace('%','/')
     ret= re.sub(r,replace,s)
-    print('ret=>',ret)
     return ret
 
 def upper(s):
