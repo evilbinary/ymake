@@ -310,6 +310,8 @@ def gcc_build(tool,target,opt={}):
         is_modify_target=True
 
     if len(modify_file_objs)<=0 and not is_modify_target:
+        call_hook_event(target,'after_link')
+        call_hook_event(target,'after_build')
         return
         
     includedirs=get_target_include(target)

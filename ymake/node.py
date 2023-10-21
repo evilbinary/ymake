@@ -97,6 +97,8 @@ class Node(dict):
 
     # def update(self,vals):
     #     self.obj.update(vals)
+    def name(self):
+        return self.get('name')
 
     def targetfile(self):
         build_dir=node_get_formated(self,'build-dir')
