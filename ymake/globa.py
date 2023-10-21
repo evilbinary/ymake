@@ -11,3 +11,4 @@ mode=None
 
 is_init=False
 is_process=False
+cache=None

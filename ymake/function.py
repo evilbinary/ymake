@@ -24,8 +24,10 @@ import inspect
 import hashlib
 import datetime
 from op import mod_os,mod_path,mod_string,cmd,shell,mod_io,mod_math
-from globa import mode
+from globa import mode,cache
 from pathlib import Path
+from diskcache import Cache
+
 
 buildin_module={}
 
@@ -52,6 +54,11 @@ def project(name, **kwargs):
 
     if not os.path.exists(node.get('cache-dir')):
         os.mkdir(node.get('cache-dir'))
+    global cache
+    cache=Cache(node.get('cache-dir'))
+    node['cache']=cache
+    
+        
 
 def target(name, **kwargs):
     caller_frame = inspect.currentframe().f_back
@@ -529,7 +536,13 @@ def is_file_modified(source_file,target_file):
     try:
         source_modified = os.path.getmtime(source_file)
         output_modified = os.path.getmtime(target_file)
-        
+        if source_file==target_file:
+            out_time= cache.get('mtime:'+target_file,default=0)
+            if out_time< output_modified:
+                output_modified=out_time
+
+            cache.set('mtime:'+target_file,source_modified)
+
         # print('source_file=>',source_file,'target_file->',target_file)
         # print('source_modified=>',source_modified,'output_modified->',output_modified)
         return source_modified > output_modified

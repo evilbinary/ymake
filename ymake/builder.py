@@ -325,6 +325,7 @@ def gcc_build(tool,target,opt={}):
 
     build_target=get_build_target(target)
 
+    is_modify_obj=False
     file_obj_dirs=set()
     for file in file_objs:
         file_src=file.get('src')
@@ -334,6 +335,7 @@ def gcc_build(tool,target,opt={}):
         if is_modify:
             modify_file_objs.append(file)
             log.debug('file is modify {}'.format(file_obj))
+            is_modify_obj=True
         else:
             log.debug('file is not modify {}'.format(file_obj))
         
@@ -367,7 +369,7 @@ def gcc_build(tool,target,opt={}):
     extend=target.get('extensions')
     file_rules=target.get('file-rules')
     
-    if is_modify_target:
+    if is_modify_target or is_modify_obj:
         call_hook_event(target,'on_build')
 
     for f in modify_file_objs:

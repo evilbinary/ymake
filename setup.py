@@ -35,7 +35,8 @@ setuptools.setup(
         'pytest',
         'colorama',
         'networkx', 
-        'colorlog'
+        'colorlog',
+        'diskcache'
     ],
     python_requires=">=2.6",
 )
