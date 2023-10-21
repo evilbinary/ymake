@@ -6,7 +6,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 setuptools.setup(
     name="yymake",
-    version="0.4.7",
+    version="0.4.8",
     author="evilbinary",
     author_email="rootntsd@gmail.com",
     description="A corss build dsl make tool",
