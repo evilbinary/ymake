@@ -337,7 +337,8 @@ def gcc_build(tool,target,opt={}):
 
     extend=target.get('extensions')
     file_rules=target.get('file-rules')
-    call_hook_event(target,'on_build')
+    if len(modify_file_objs)>0:
+        call_hook_event(target,'on_build')
 
     for obj in modify_file_objs:
         
@@ -375,7 +376,6 @@ def gcc_build(tool,target,opt={}):
     if len(file_objs)==0:
         log.warn('obj file is 0')
         return
-
 
     build_target_commands=[]
     if target.get('kind')=='static':
