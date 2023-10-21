@@ -136,8 +136,13 @@ def gsub(s,r,replace):
     ret= re.sub(r,replace,s)
     print('ret=>',ret)
     return ret
+
+def upper(s):
+    return s.upper()
+
 mod_string.gsub=gsub
 mod_string.find=find
+mod_string.upper=upper
 
 mod_io.open=open
 
