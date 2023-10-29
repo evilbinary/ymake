@@ -27,6 +27,7 @@ def build(tool,target,opt={}):
 
     build_dir_target_re= os.path.join(build_dir,target.get('name'))
 
+    target['build-lib-dir']=build_dir_target_re
     target['build-dir']=build_dir_target_re+'/lib'
     automake['build-dir']=build_dir_target_re+'/lib'
 

@@ -63,9 +63,15 @@ def get_target_include(target):
         for d in deps:
             n=nodes_get_type_and_name('target',d)
             if n:
-                n_build_dir=node_get_formated(n,'build-dir')
                 include=get_includedirs(n)
-                n_build_dir=os.path.join(n_build_dir,n.get('name'))
+
+                n_build_dir=node_get_formated(n,'build-dir')
+                n_build_lib_dir =node_get_formated(n,'build-lib-dir')
+                if n_build_lib_dir:
+                    include=['-I' + os.path.relpath(os.path.join(n_build_lib_dir,item)) for item in include]
+                    include=include + get_include(n)
+                    includes+=include
+                
                 include=['-I' + os.path.relpath(os.path.join(n_build_dir,item)) for item in include]
                 include=include + get_include(n)
                 includes+=include

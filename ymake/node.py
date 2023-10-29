@@ -67,6 +67,8 @@ def node_get_formated(target,key):
         if target.get('project'):
             build_dir=target.get('project').get(key)
 
+    if not build_dir:
+        return None
     build_dir=format_target_var(target,build_dir)
     # print(target.get('name'),'build dir=',build_dir)
 
