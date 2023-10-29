@@ -90,7 +90,12 @@ def cmdstr(s):
     pass
 
 def cp(src,dest):
-    shell('cp', ['-r',src,dest])
+    # shell('cp', ['-r',src,dest])
+    if os.path.isdir(src):
+        shutil.copytree(src, dest, dirs_exist_ok=True)
+    else:
+        shutil.copy(src,dest)
+
     # file_list = glob.glob(src)
     # log.debug('file-list {}'.format(file_list))
     # # 逐个复制文件
