@@ -389,7 +389,17 @@ def has_cflags(*cflags):
     return False
 
 def get_cflags():
-    return node_get('cflags')
+    #return node_get('cflags')
+    flags=[]
+    n=node_current()
+    flags+=node_get_parent_all(n,'cflags')
+    # print('=============>',node_get_parent_all(target,'cflags'))
+
+    defined=node_get_parent_all(n,'defines')
+    if defined:
+        flags+=['-D'+item for item in defined]
+
+    return flags
 
 def get_arch():
     return node_get_all('arch')
