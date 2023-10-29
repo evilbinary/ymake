@@ -90,16 +90,15 @@ def cmdstr(s):
     pass
 
 def cp(src,dest):
-    # cmdstr('cp -r '+src+' '+dest)
-
-    file_list = glob.glob(src)
-    log.debug('file-list {}'.format(file_list))
-    # 逐个复制文件
-    for file_path in file_list:
-        if os.path.isdir(file_path):
-            shutil.copytree(file_path, dest, dirs_exist_ok=True)
-        else:
-            shutil.copy(file_path,dest)
+    shell('cp', ['-r',src,dest])
+    # file_list = glob.glob(src)
+    # log.debug('file-list {}'.format(file_list))
+    # # 逐个复制文件
+    # for file_path in file_list:
+    #     if os.path.isdir(file_path):
+    #         shutil.copytree(file_path, dest, dirs_exist_ok=True)
+    #     else:
+    #         shutil.copy(file_path,dest)
 
 def projectdir():
     return os.getcwd()
