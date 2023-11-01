@@ -144,6 +144,9 @@ def get_target_ldflags(target):
                 continue
             
             n_build_dir=node_get_formated(n,'build-dir')
+            child_flags=get_target_ldflags(n)
+            child_flags.reverse()
+            flags+=child_flags
             if n.get('build-tool'):
                 ext='.a'
                 if n.get('kind')=='shared':
@@ -159,7 +162,7 @@ def get_target_ldflags(target):
                     flags+=['-L'+n_build_dir]
                     flags+=['-l'+d]+ flags
 
-            flags+=get_target_ldflags(n)
+
 
     log.debug('ldflags no uniq======>{}'.format(flags))
 
