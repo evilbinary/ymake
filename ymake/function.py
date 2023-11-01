@@ -504,6 +504,9 @@ def get_plat():
     plat= node_get_parent(cur,'plat')
     return plat
 
+def set_filename(file):
+    node_set('filename',file)
+
 def add_subs(*path):
     caller_frame = inspect.currentframe().f_back
     caller_file_path = inspect.getframeinfo(caller_frame).filename
@@ -685,6 +688,7 @@ def import_source(file):
     module.set_sourcedir=set_sourcedir
     module.get_cflags=get_cflags
     module.add_packages=add_packages
+    module.set_filename=set_filename
 
 
     module.on_build=on_build

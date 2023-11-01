@@ -104,8 +104,11 @@ class Node(dict):
 
     def targetfile(self):
         build_dir=node_get_formated(self,'build-dir')
+        name=self.get('name')
+        if self.get('filename'):
+            name= self.get('filename')
         if build_dir:
-            return build_dir+'/'+self.get('name')
+            return build_dir+'/'+name
         else:
             return None
 

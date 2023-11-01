@@ -9,6 +9,7 @@ from function import *
 # from dask.distributed import Client, as_completed
 from concurrent.futures import ThreadPoolExecutor
 import subprocess
+from collections import OrderedDict
 
 
 data_list=[]
@@ -26,6 +27,8 @@ def get_build_target(target,path='',name=''):
         prefix='lib'
     if not name:
         name=target.get("name")
+    if target.get('filename'):
+        name= target.get('filename')
     
     build_tool=target.get('build-tool')
     if build_tool:
@@ -33,6 +36,8 @@ def get_build_target(target,path='',name=''):
         if d:
             build_dir=d
             name=build_tool.get('name')
+            if build_tool.get('filename'):
+                name= build_tool.get('filename')
 
     out_name=os.path.join(build_dir+path,prefix+name+ext)
     # print('build target name ',out_name,build_dir,target.get("name"))
@@ -137,7 +142,7 @@ def get_target_ldflags(target):
                 continue            
             if not (n.get('kind')=='static' or n.get('kind')=='shared'):
                 continue
-        
+            
             n_build_dir=node_get_formated(n,'build-dir')
             if n.get('build-tool'):
                 ext='.a'
@@ -145,20 +150,33 @@ def get_target_ldflags(target):
                     ext='.so'
                 lib_files=file_match(n_build_dir+'/*'+ext)
                 log.debug('====>lib_file {}'.format(lib_files))
-                flags=['-L'+n_build_dir]+flags
+                flags+=['-L'+n_build_dir]
                 for lib in lib_files:
-                    flags=['-l'+get_lib_name(lib)]+flags
+                    flags+=['-l'+get_lib_name(lib)]
             else:
                 lib_file=get_build_target(n)
                 if os.path.exists(lib_file):
                     flags+=['-L'+n_build_dir]
-                    flags+=['-l'+d]
-                
+                    flags+=['-l'+d]+ flags
+
+            flags+=get_target_ldflags(n)
 
     log.debug('ldflags no uniq======>{}'.format(flags))
 
-    flags=list(dict.fromkeys(flags))
-    
+    flags=list(OrderedDict.fromkeys(flags))
+    lib_path_flags = []
+    lib_name_flags = []
+    flags_rest =[]
+    for f in flags:
+        if f.startswith('-L'):
+            lib_path_flags.append(f)
+        elif f.startswith('-l'):
+            lib_name_flags.append(f)
+        else:
+            flags_rest.append(f)
+    lib_name_flags.reverse()
+
+    flags=lib_path_flags+lib_name_flags+flags_rest
     log.debug('ldflags======>{}'.format(flags))
     return flags
 
