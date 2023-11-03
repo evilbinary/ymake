@@ -17,7 +17,6 @@ module_path=['..',
 sys.path.extend(module_path)
 
 import json
-import networkx as nx
 from colorama import Fore, Back, Style, init
 import fnmatch
 import types
@@ -32,38 +31,13 @@ from builder import *
 from toolchain import toolchains_init
 from version import version
 from globa import verborse,jobnum,mode,is_init,is_process
+from graph import build_graph,find_cycles
 
 true=True
 false=False
 args=None
 parser=None
 
-def build_graph(project):
-    graph={}    
-    if project.get('type')=='target':
-        target=project
-        graph[target.get('name')]= target.get('deps')
-    else:
-        for target_name in project.get('targets'):
-            # print('target_name==>',target_name)
-
-            target_objs=project.get('target-objs')
-            if target_objs:
-                target=target_objs.get(target_name)
-                # print('target_objs=>',target)
-                if target:
-                    graph[target_name]= target.get('deps')
-                else:
-                    log.warn('target {} not belong any project'.format(target_name))
-    return graph
-
-def find_cycles(graph):
-    g = nx.DiGraph(graph)
-    try:
-        cycles = nx.find_cycle(g, orientation='original')
-        return cycles
-    except nx.NetworkXNoCycle:
-        return []
 
 def compile(project,graph,name):
     G = nx.DiGraph(graph)

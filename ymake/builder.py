@@ -10,7 +10,7 @@ from function import *
 from concurrent.futures import ThreadPoolExecutor
 import subprocess
 from collections import OrderedDict
-
+from graph import build_graph,find_cycles,build_dep_graph
 
 data_list=[]
 
@@ -141,7 +141,14 @@ def get_target_ldflags(target):
 
     deps=target.get('deps')
     if deps:
-        for d in deps:
+        project=nodes_get_all_type('project')
+        graph={}
+        if len(project)>0:
+            build_dep_graph(graph,target,['static','shared'])
+        G = nx.DiGraph(graph)
+        # 执行拓扑排序
+        topological_order = list(nx.topological_sort(G))
+        for d in topological_order:
             n=nodes_get_type_and_name('target',d)
             if not n:
                 continue            
@@ -150,8 +157,7 @@ def get_target_ldflags(target):
             
             n_build_dir=node_get_formated(n,'build-dir')
             child_flags=get_target_ldflags(n)
-            child_flags.reverse()
-            flags+=child_flags
+            # child_flags.reverse()
             if n.get('build-tool'):
                 ext='.a'
                 if n.get('kind')=='shared':
@@ -166,6 +172,7 @@ def get_target_ldflags(target):
                 if os.path.exists(lib_file):
                     flags+=['-L'+n_build_dir]
                     flags+=['-l'+d]+ flags
+            flags+=child_flags
 
 
 
@@ -182,7 +189,7 @@ def get_target_ldflags(target):
             lib_name_flags.append(f)
         else:
             flags_rest.append(f)
-    lib_name_flags.reverse()
+    # lib_name_flags.reverse()
 
     flags=lib_path_flags+lib_name_flags+flags_rest
     log.debug('ldflags======>{}'.format(flags))
