@@ -126,6 +126,14 @@ class Node(dict):
     def set(self,key,val):
         self[key]=val
 
+    def toolchain(self):
+        toolchain_name=  self.get('toolchain')
+        if not toolchain_name:
+            toolchain_name = node_get_parent(self,'toolchain')
+        toolchain=nodes_get_type_and_name('toolchain',toolchain_name)
+        
+        return toolchain
+
     def tool(self,tool):
         toolchain_name= node_get_parent(self,'toolchain')
 

@@ -99,7 +99,7 @@ def compile(project,graph,name):
             'progress':i,
             'total_nodes':total_nodes
         }
-        build_prepare(target)
+        toolchain.get('build_prepare')(toolchain,target,opt)
         toolchain.get('build')(toolchain,target,opt)
         progress = i + 1
         print_progress('compile',progress,total_nodes,node)
@@ -191,7 +191,7 @@ def clean_target(project,graph,name):
             'progress':i,
             'total_nodes':total_nodes
         }
-        build_prepare(target)
+        toolchain.get('build_prepare')(toolchain,target,opt)
         toolchain.get('clean')(toolchain,target,opt)
         progress = i + 1
         print_progress('clean',progress,total_nodes,node)
@@ -232,7 +232,7 @@ def run(name):
 
     target=nodes_get_type_and_name('target',name)
     if target:
-        build_prepare(target)
+        toolchain.get('build_prepare')(toolchain,target,opt)
         call_hook_event(target,'before_run')
         call_hook_event(target,'on_run')
     else:
@@ -258,11 +258,26 @@ def init():
         prefix= cur.get('prefix')
         set_toolset('ld',prefix+'gcc')
 
-    toolchain('arm-none-eabi',prefix='arm-none-eabi-',build=gcc_build,clean=gcc_clean)
-    toolchain('arm-none-eabi',prefix='arm-none-eabi-',build=gcc_build,clean=gcc_clean)
-    toolchain('riscv64-unknown-elf',prefix='riscv64-unknown-elf-',build=gcc_build,clean=gcc_clean)
-    toolchain('i386-elf',prefix='i386-elf-',build=gcc_build,clean=gcc_clean)
-    toolchain('i686-elf',prefix='i686-elf-',build=gcc_build,clean=gcc_clean)
+    toolchain('arm-none-eabi',
+        prefix='arm-none-eabi-',
+        build=gcc_build,
+        build_prepare=build_prepare,
+        clean=gcc_clean)
+    toolchain('riscv64-unknown-elf',
+        prefix='riscv64-unknown-elf-',
+        build=gcc_build,
+        build_prepare=build_prepare,
+        clean=gcc_clean)
+    toolchain('i386-elf',
+        prefix='i386-elf-',
+        build=gcc_build,
+        build_prepare=build_prepare,
+        clean=gcc_clean)
+    toolchain('i686-elf',
+        prefix='i686-elf-',
+        build=gcc_build,
+        build_prepare=build_prepare,
+        clean=gcc_clean)
 
     toolchains_init()
     toolchain_end()

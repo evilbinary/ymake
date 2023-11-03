@@ -10,6 +10,22 @@ from function import toolchain,add_buildin,node_start,set_toolset,\
     node_get_formated
 from builder import get_build_target
 from log import log
+from node import Node
+
+def build_prepare(tool,target,opt={}):
+    build_dir=node_get_formated(target,'build-dir')
+    build_dir_abs=os.path.abspath(build_dir)
+
+    build_dir_target=os.path.join(build_dir_abs,target.get('name'))
+    build_dir_target_re= os.path.join(build_dir,target.get('name'))
+
+    automake=target.get('build-tool')
+
+    target['build-lib-dir']=build_dir_target_re
+    target['build-dir']=build_dir_target_re+'/lib'
+    automake['build-dir']=build_dir_target_re+'/lib'
+
+
 
 def build(tool,target,opt={}):
     log.debug('{} build {}'.format(tool.get('name'),target.get('name')))
@@ -27,9 +43,7 @@ def build(tool,target,opt={}):
 
     build_dir_target_re= os.path.join(build_dir,target.get('name'))
 
-    target['build-lib-dir']=build_dir_target_re
-    target['build-dir']=build_dir_target_re+'/lib'
-    automake['build-dir']=build_dir_target_re+'/lib'
+
 
     build_target=get_build_target(target)
 
@@ -66,14 +80,16 @@ def automake(name=None, **kwargs):
     cur=node_current()
     if name==None:
         name=cur.get('name')
+
     node={
         'name': name,
         'type':'automake',
         'toolchain':'automake'
     }
-    node.update(kwargs)
+    n=Node(**node)
+    n.update(kwargs)
     if cur:
-        cur['build-tool']=node    
+        cur['build-tool']=n    
     node_start(node)
 
 def automake_end():
@@ -86,7 +102,7 @@ def configure(*args):
 
 
 def init():
-    toolchain('automake',build=build)
+    toolchain('automake',build=build,build_prepare=build_prepare)
     set_kind("standalone")
 
     set_toolset("configure","./configure")

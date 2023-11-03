@@ -72,6 +72,11 @@ def get_target_include(target):
 
                 n_build_dir=node_get_formated(n,'build-dir')
                 n_build_lib_dir =node_get_formated(n,'build-lib-dir')
+                if not n_build_lib_dir:
+                    tool=node_get_parent(n,'toolchain')
+                    build_prepare(tool,n)
+                    n_build_lib_dir =node_get_formated(n,'build-lib-dir')
+
                 if n_build_lib_dir:
                     include=['-I' + os.path.relpath(os.path.join(n_build_lib_dir,item)) for item in include]
                     include=include + get_include(n)
@@ -124,7 +129,7 @@ def get_target_ldflags(target):
     flags=[]
     if target.get('ldflags'):
         flags+=target.get('ldflags')
-    toolchain=  target.get('toolchain')
+    toolchain= target.get('toolchain')
     if not toolchain:
         toolchain_name = node_get_parent(target,'toolchain')
         toolchain=nodes_get_type_and_name('toolchain',toolchain_name)
@@ -270,7 +275,7 @@ def tool_build(target):
         if toolchain:
             toolchain.get('build')(toolchain,target)
 
-def build_prepare(target):
+def build_prepare(tool,target,opt={}):
     rule_build(target)
 
     call_hook_event(target,'on_config')
@@ -279,6 +284,10 @@ def build_prepare(target):
     file_objs=target.get('file-objs')
     files=get_list_args(files)
     
+    build_tool=target.get('build-tool')
+    if build_tool:
+        build_tool.toolchain()['build_prepare'](tool,target)
+
     if not file_objs or len(file_objs)< len(files):
         dir_name=target['file-path'] 
         log.debug('prepare files=>'.format(files))
@@ -339,7 +348,7 @@ def gcc_clean(tool,target,opt={}):
     for obj in file_objs:
         if os.path.exists(obj['obj']):
             os.remove(obj['obj'])
-            
+
     if os.path.exists(build_target):
         os.remove(build_target)
 
