@@ -46,7 +46,7 @@ def project(name, **kwargs):
         'cache-dir':'.cache',
         'arch':'',
         'plat':'',
-        'mode': mode if mode else 'release',
+        'mode': '',
         'arch_type':''
     }
     node.update(kwargs)
