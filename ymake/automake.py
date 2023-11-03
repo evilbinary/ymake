@@ -34,14 +34,10 @@ def build(tool,target,opt={}):
     sourcedir=target.get('sourcedir')
     args=automake.get('configure')
     jobnum= node_get_parent(automake,'jobnum')
-    build_dir=node_get_formated(target,'build-dir')
+    build_dir=node_get_formated(target,'build-lib-dir')
 
     build_dir_abs=os.path.abspath(build_dir)
     build_config_abs=os.path.abspath(os.path.join(sourcedir,tool.get('configure')))
-
-    build_dir_target=os.path.join(build_dir_abs,target.get('name'))
-
-    build_dir_target_re= os.path.join(build_dir,target.get('name'))
 
 
 
@@ -64,7 +60,7 @@ def build(tool,target,opt={}):
         shell('autoconf')
         shell('automake --add-missing')
 
-    args+=['--prefix='+build_dir_target]
+    args+=['--prefix='+build_dir_abs]
     try:
         shell(tool.get('configure'),args,cwd=sourcedir)
         
@@ -81,16 +77,16 @@ def automake(name=None, **kwargs):
     if name==None:
         name=cur.get('name')
 
-    node={
+    data={
         'name': name,
         'type':'automake',
         'toolchain':'automake'
     }
-    n=Node(**node)
+    n=Node(**data)
     n.update(kwargs)
     if cur:
         cur['build-tool']=n    
-    node_start(node)
+    node_start(n)
 
 def automake_end():
     cur=node_current()

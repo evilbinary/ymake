@@ -233,7 +233,6 @@ def run(name):
 
     target=nodes_get_type_and_name('target',name)
     if target:
-        toolchain.get('build_prepare')(toolchain,target,opt)
         call_hook_event(target,'before_run')
         call_hook_event(target,'on_run')
     else:
