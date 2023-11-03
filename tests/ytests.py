@@ -109,6 +109,7 @@ def test_set_arch():
     assert 'aaa'==get_arch()
 
 def test_add_cflags():
+    node_finish()
 
     root('root')
 
@@ -119,10 +120,10 @@ def test_add_cflags():
     project('aaa')
 
     add_cflags('-la')
-    assert ['-la']==get_cflags()
+    assert ['-la','-lroot']==get_cflags()
 
     add_cflags('-lb')
-    assert ['-la','-lb']==get_cflags()
+    assert ['-la', '-lb', '-lroot']==get_cflags()
 
     project_end()
 
@@ -146,7 +147,9 @@ def test_add_cflags_array():
     assert cflags_before ==cflags_after
 
 def test_target_scope():
-
+    node_finish()
+    root('root')
+    
     add_cflags('-lroot')
 
     target('a')
@@ -158,7 +161,7 @@ def test_target_scope():
     assert ['-lb']==get_cflags()
     target_end()
 
-    assert None==get_cflags()
+    assert []==get_cflags()
     
 
 def test_set_kind():
@@ -189,6 +192,8 @@ def test_add_defines():
 
 
 def test_cflags():
+    node_finish()
+    root('root')
 
     project('project-cflags')
 
@@ -199,7 +204,7 @@ def test_cflags():
     add_cflags('-lc')
 
     cflags=get_cflags()
-    assert ['-lc']==cflags
+    assert ['-lc','-la', '-lb']==cflags
 
     cur=node_current()
 
