@@ -35,7 +35,8 @@ from globa import verborse,jobnum,mode,is_init,is_process
 
 true=True
 false=False
-
+args=None
+parser=None
 
 def build_graph(project):
     graph={}    
@@ -243,7 +244,7 @@ def run(name):
             print('    {}'.format(target.get('name')))
 
 def init():
-    global is_init
+    global is_init,parser,args,verborse
     root('root')
     add_toolchain_dirs('toolchains')
 
@@ -296,6 +297,36 @@ def init():
 
     print('welcome to use {}ymake{} {} ,make world happy ^_^!!'.format(Fore.GREEN,Style.RESET_ALL,version))
 
+    # 创建参数解析器
+    parser = argparse.ArgumentParser(allow_abbrev=True)
+
+    parser.add_argument('-v',nargs='?', default=None, help='verborse info debug error')
+    parser.add_argument('-r','-run',nargs='?', default=None, help='run the project target.')
+    parser.add_argument('-j',nargs='?', default=1, help='job number')
+    parser.add_argument('-m','-mode',nargs='?', default=None, help='build mode debug relase')
+    parser.add_argument('-b','-build',nargs='?', default=None, help='build the project target.')
+    parser.add_argument('-c','-clean',nargs='?', default=None, help='clean the project target.')
+    parser.add_argument('-p','-plat',nargs='?', default=None, help='select the project platform.')
+
+    args = parser.parse_args()
+    
+    verborse=args.v
+
+    if args.v=='D':
+        log.setLevel(logging.DEBUG)
+    elif args.v=='I':
+        log.setLevel(logging.INFO)
+    elif args.v=='W':
+        log.setLevel(logging.WARN)
+    if args.j:
+        jobnum=args.j
+        set_config('jobnum',int(jobnum))
+    if args.m:
+        mode=args.m
+        set_config('mode',mode)
+    if args.p:
+        set_defaultplat(args.p)
+
 def process():
     try:
         global mode,jobnum,is_process
@@ -303,17 +334,8 @@ def process():
             return
 
         is_process=True
-        # 创建参数解析器
-        parser = argparse.ArgumentParser(allow_abbrev=True)
 
         # 添加参数
-        parser.add_argument('-v',nargs='?', default=None, help='verborse info debug error')
-        parser.add_argument('-r','-run',nargs='?', default=None, help='run the project target.')
-        parser.add_argument('-j',nargs='?', default=1, help='job number')
-        parser.add_argument('-m','-mode',nargs='?', default=None, help='build mode debug relase')
-        parser.add_argument('-b','-build',nargs='?', default=None, help='build the project target.')
-        parser.add_argument('-c','-clean',nargs='?', default=None, help='clean the project target.')
-
         options=nodes_get_all_type('option')
         for o in options:
             parser.add_argument('--'+o.get('name'),nargs='?', default=o.get('default'), help=o.get('description'))
@@ -321,25 +343,13 @@ def process():
         # 解析命令行参数
         args = parser.parse_args()
 
-        verborse=args.v
 
         for o in options:
             n=o.get('name').replace('-','_')
             v=getattr(args, n)
             o['value']=v
 
-        if args.v=='D':
-            log.setLevel(logging.DEBUG)
-        elif args.v=='I':
-            log.setLevel(logging.INFO)
-        elif args.v=='W':
-            log.setLevel(logging.WARN)
-        if args.j:
-            jobnum=args.j
-            set_config('jobnum',int(jobnum))
-        if args.m:
-            mode=args.m
-            set_config('mode',mode)
+       
         if args.c:
             clean(args.c)
         elif args.b:

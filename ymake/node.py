@@ -225,7 +225,8 @@ def node_get_all(key):
 def node_get_parent(n,key):
     while n:
         if key in n:
-            return n[key]
+            if n[key]:
+                return n[key]
         n=n.get('parent')
     return None
 
