@@ -102,7 +102,7 @@ def compile(project,graph,name):
         build_prepare(target)
         toolchain.get('build')(toolchain,target,opt)
         progress = i + 1
-        print_progress(progress,total_nodes,node)
+        print_progress('compile',progress,total_nodes,node)
 
 
     end_time = datetime.datetime.now()
@@ -154,6 +154,79 @@ def build(name=None):
         else:
             compile(p,graph,name)
 
+
+
+def clean_target(project,graph,name):
+    G = nx.DiGraph(graph)
+    # 执行拓扑排序
+    topological_order = list(nx.topological_sort(G))
+    total_nodes = len(topological_order)
+    toolchain_name=project.get('toolchain')
+
+    # 根据拓扑排序的顺序反向遍历节点，并编译代码
+    compiled_code = []
+    start_time = datetime.datetime.now()
+    build_target=[]
+    for i,node in enumerate(reversed(topological_order)):
+        # 编译节点对应的代码
+        # print('node===>',node,project.get('target-objs'))
+
+        target=project.get('target-objs').get(node)
+        if name and target:
+            if not (target.get('name')==name ):
+                continue
+        if not target:
+            log.error('not found target {}'.format(node))
+            return
+        if target.get('toolchain'):
+            toolchain_name=target.get('toolchain')
+        build_target.append(target)
+
+        toolchain=nodes_get_type_and_name('toolchain',toolchain_name)
+        if not toolchain:
+            log.error('not found toolchain {}'.format(toolchain_name))
+            break
+
+        opt={
+            'progress':i,
+            'total_nodes':total_nodes
+        }
+        build_prepare(target)
+        toolchain.get('clean')(toolchain,target,opt)
+        progress = i + 1
+        print_progress('clean',progress,total_nodes,node)
+
+
+    end_time = datetime.datetime.now()
+    time_diff=end_time-start_time
+    if len(build_target)>0:
+        print("{}clean success!{} const {}".format(Fore.GREEN,Style.RESET_ALL,time_diff) )
+    else:
+        print("{}clean nothing not target found!{} const {}".format(Fore.GREEN,Style.RESET_ALL,time_diff) )
+
+def clean(name=None):
+    node_finish()
+    for p in nodes:
+        if not p.get('type') in ['project']:
+            continue
+        # print('project=>',p)
+        graph=build_graph(p)
+        # print('graph=>',graph)
+
+        if len(graph)<=0:
+            print('{}clean nothing finish.{}'.format(Fore.GREEN,Style.RESET_ALL))
+            continue
+        cycles=find_cycles(graph)
+        
+        if len(cycles)>0:
+            print("cycle depency:")
+            for cycle in cycles:
+                print(' -> '.join(cycle))
+            print('clean failed')
+        else:
+            clean_target(p,graph,name)
+
+
 def run(name):
     node_finish()
 
@@ -185,11 +258,11 @@ def init():
         prefix= cur.get('prefix')
         set_toolset('ld',prefix+'gcc')
 
-    toolchain('arm-none-eabi',prefix='arm-none-eabi-',build=gcc_build)
-    toolchain('arm-none-eabi',prefix='arm-none-eabi-',build=gcc_build)
-    toolchain('riscv64-unknown-elf',prefix='riscv64-unknown-elf-',build=gcc_build)
-    toolchain('i386-elf',prefix='i386-elf-',build=gcc_build)
-    toolchain('i686-elf',prefix='i686-elf-',build=gcc_build)
+    toolchain('arm-none-eabi',prefix='arm-none-eabi-',build=gcc_build,clean=gcc_clean)
+    toolchain('arm-none-eabi',prefix='arm-none-eabi-',build=gcc_build,clean=gcc_clean)
+    toolchain('riscv64-unknown-elf',prefix='riscv64-unknown-elf-',build=gcc_build,clean=gcc_clean)
+    toolchain('i386-elf',prefix='i386-elf-',build=gcc_build,clean=gcc_clean)
+    toolchain('i686-elf',prefix='i686-elf-',build=gcc_build,clean=gcc_clean)
 
     toolchains_init()
     toolchain_end()
@@ -224,6 +297,7 @@ def process():
         parser.add_argument('-j',nargs='?', default=1, help='job number')
         parser.add_argument('-m','-mode',nargs='?', default=None, help='build mode debug relase')
         parser.add_argument('-b','-build',nargs='?', default=None, help='build the project target.')
+        parser.add_argument('-c','-clean',nargs='?', default=None, help='clean the project target.')
 
         options=nodes_get_all_type('option')
         for o in options:
@@ -251,7 +325,9 @@ def process():
         if args.m:
             mode=args.m
             set_config('mode',mode)
-        if args.b:
+        if args.c:
+            clean(args.c)
+        elif args.b:
             build(args.b)
         else:
             build(args.b)

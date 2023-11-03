@@ -330,6 +330,19 @@ def get_ext(name):
     else:
         return l[len(l)-1]
 
+def gcc_clean(tool,target,opt={}):
+    build_dir=node_get_formated(target,'build-dir')
+    build_obj_dir=node_get_formated(target,'build-obj-dir')
+    build_target=get_build_target(target)
+    file_objs=target.get("file-objs")
+
+    for obj in file_objs:
+        if os.path.exists(obj['obj']):
+            os.remove(obj['obj'])
+            
+    if os.path.exists(build_target):
+        os.remove(build_target)
+
 def gcc_build(tool,target,opt={}):
     call_hook_event(target,'before_build')
 
@@ -485,7 +498,7 @@ def build_cmd(command,info):
     
     info['progress']+=1
 
-    print_progress(info['progress'],info['total_nodes'],target, info['opt'])
+    print_progress('compile',info['progress'],info['total_nodes'],target, info['opt'])
 
 def process_build(compile_commands,info,jobnum):
     executor = ThreadPoolExecutor(max_workers=jobnum)

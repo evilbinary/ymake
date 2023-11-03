@@ -732,14 +732,14 @@ def add_buildin(key,val,level=1):
     buildin_module[key]=val
     node_set_level(key,level)
 
-def print_progress(progress,total_nodes,node,opt=None):
+def print_progress(type,progress,total_nodes,node,opt=None):
     if opt:
-        print("{}[{:.0f}.{:.0f}%]:{} {}compile target {}{}"
-            .format( Fore.GREEN,opt.get('progress')/opt.get('total_nodes')*100,progress/total_nodes*100,Style.RESET_ALL,Fore.MAGENTA,node,Style.RESET_ALL)
+        print("{}[{:.0f}.{:.0f}%]:{} {}{} target {}{}"
+            .format( Fore.GREEN,opt.get('progress')/opt.get('total_nodes')*100,progress/total_nodes*100,type,Style.RESET_ALL,Fore.MAGENTA,node,Style.RESET_ALL)
         )
     else:
-        print("{}[{:.0f}%]:{} {}compile target {}{}"
-            .format( Fore.GREEN,progress/total_nodes*100 ,Style.RESET_ALL,Fore.MAGENTA,node,Style.RESET_ALL)
+        print("{}[{:.0f}%]:{} {}{} target {}{}"
+            .format( Fore.GREEN,progress/total_nodes*100 ,type,Style.RESET_ALL,Fore.MAGENTA,node,Style.RESET_ALL)
         )
 
 
