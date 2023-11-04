@@ -111,6 +111,7 @@ def projectdir():
 mod_os.scriptdir=scriptdir
 mod_os.execv =cmd
 mod_os.exec =cmdstr
+mod_os.shell= shell
 mod_os.cp = cp
 mod_os.filesize=os.path.getsize
 mod_os.projectdir=projectdir

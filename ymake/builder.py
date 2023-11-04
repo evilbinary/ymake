@@ -142,7 +142,7 @@ def get_target_ldflags(target):
     deps=target.get('deps')
     if deps:
         topological_order= get_dep_order(target,['static','shared','lib'])
-        print('dep orders ',topological_order)
+        log.debug('dep orders ',topological_order)
         for d in topological_order:
             n=nodes_get_type_and_name('target',d)
             if not n:
