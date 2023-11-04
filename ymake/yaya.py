@@ -74,7 +74,9 @@ def compile(project,graph,name):
             'progress':i,
             'total_nodes':total_nodes
         }
-        toolchain.get('build_prepare')(toolchain,target,opt)
+        bp=toolchain.get('build_prepare')
+        if bp:
+            bp(toolchain,target,opt)
         toolchain.get('build')(toolchain,target,opt)
         progress = i + 1
         print_progress('compile',progress,total_nodes,node)

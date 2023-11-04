@@ -293,3 +293,17 @@ def test_set_config_array():
     set_config('cflags',arch_cflags,plat_cflags)
 
     assert get_config('cflags')==arch_cflags+plat_cflags
+
+def test_add_deps():
+
+    add_deps('a')
+    cur=node_current()
+    assert cur['deps'] == ['a']
+
+    add_deps('1','2')
+
+    assert cur['deps'] == ['a','1','2']
+
+    add_deps(['d','e'])
+
+    assert cur['deps'] == ['a','1','2','d','e']

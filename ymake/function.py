@@ -281,12 +281,12 @@ def get_build_obj_dir():
     return build_obj_dir
 
 def add_deps(*deps):
-    cur=node_current()
-    cur['deps'].extend(deps)
+    deps=get_list_args(deps)
+    node_extend('deps',deps)
 
 def add_packages(*deps):
-    cur=node_current()
-    cur['deps'].extend(deps)
+    deps=get_list_args(deps)
+    node_extend('deps',deps)
 
 def script_dir():
     caller_frame = inspect.currentframe().f_back
