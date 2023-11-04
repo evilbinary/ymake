@@ -136,7 +136,7 @@ def toolchain(name, **kwargs):
         'sh': prefix+'gcc',
         'ranlib': prefix+'ranlib',
         'is_modify': is_file_modified,
-        'prefix': prefix
+        'prefix': prefix,
     }
     node.update(kwargs)
     node_start(node)

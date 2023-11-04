@@ -222,9 +222,9 @@ def init():
     global is_init,parser,args,verborse
     root('root')
     add_toolchain_dirs('toolchains')
-
+    
     # 默认工具
-    toolchain('gcc',build=gcc_build)
+    toolchain('gcc',build=gcc_build,build_prepare=build_prepare)
     if platform.system()=='Darwin':
         add_ldflags('-lSystem')
         add_ldflags('-arch', platform.machine())
