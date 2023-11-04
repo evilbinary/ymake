@@ -10,7 +10,7 @@ from function import *
 from concurrent.futures import ThreadPoolExecutor
 import subprocess
 from collections import OrderedDict
-from graph import build_graph,find_cycles,build_dep_graph
+from graph import build_graph,find_cycles,build_dep_graph,get_dep_order
 
 data_list=[]
 
@@ -141,23 +141,19 @@ def get_target_ldflags(target):
 
     deps=target.get('deps')
     if deps:
-        project=nodes_get_all_type('project')
-        graph={}
-        if len(project)>0:
-            build_dep_graph(graph,target,['static','shared'])
-        G = nx.DiGraph(graph)
-        # 执行拓扑排序
-        topological_order = list(nx.topological_sort(G))
+        topological_order= get_dep_order(target,['static','shared','lib'])
+        print('dep orders ',topological_order)
         for d in topological_order:
             n=nodes_get_type_and_name('target',d)
             if not n:
                 continue            
-            if not (n.get('kind')=='static' or n.get('kind')=='shared'):
+            if not n.get('kind') in ['static','shared','lib']:
                 continue
             
+            if n.get('ldflags'):
+                flags+=n.get('ldflags')
+            
             n_build_dir=node_get_formated(n,'build-dir')
-            child_flags=get_target_ldflags(n)
-            # child_flags.reverse()
             if n.get('build-tool'):
                 ext='.a'
                 if n.get('kind')=='shared':
@@ -172,7 +168,7 @@ def get_target_ldflags(target):
                 if os.path.exists(lib_file):
                     flags+=['-L'+n_build_dir]
                     flags+=['-l'+d]+ flags
-            flags+=child_flags
+
 
 
 
@@ -189,9 +185,8 @@ def get_target_ldflags(target):
             lib_name_flags.append(f)
         else:
             flags_rest.append(f)
-    # lib_name_flags.reverse()
 
-    flags=lib_path_flags+lib_name_flags+flags_rest
+    flags=lib_path_flags+flags_rest+lib_name_flags
     log.debug('ldflags======>{}'.format(flags))
     return flags
 

@@ -5,7 +5,7 @@
 # * 邮箱: rootdebug@163.com
 # ********************************************************************
 import networkx as nx
-from node import nodes_get_type_and_name
+from node import nodes_get_type_and_name,nodes_get_all_type
 
 def build_graph(project,kind=None):
     graph={}    
@@ -34,9 +34,26 @@ def build_dep_graph(graph,target,kind=None):
     deps=target.get('deps')
     for d in deps:
         n=nodes_get_type_and_name('target',d)
-        graph[d]= n.get('deps')
         build_dep_graph(graph,n,kind)
+        graph[d]= n.get('deps')
 
+
+def get_dep_order(target,kind):
+    project=nodes_get_all_type('project')
+    graph={}
+    if len(project)>0:
+        build_dep_graph(graph,target,kind)
+    if graph.get(target.get('name')):
+        del graph[target.get('name')]
+    G = nx.DiGraph(graph)
+    # 执行拓扑排序
+    topological_order = list(nx.topological_sort(G))
+    single=list(nx.isolates(G))
+    for i in single:
+        topological_order.remove(i)
+    topological_order+=single
+
+    return topological_order
 
 def find_cycles(graph):
     g = nx.DiGraph(graph)
