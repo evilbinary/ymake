@@ -325,6 +325,7 @@ def file_match(patterns,root='.'):
 
 
 def add_includedirs(*path,public=False):
+    path=get_list_args(path)
     log.debug('add includedirs {}'.format(path))
     cur=node_current()
     if not cur:
