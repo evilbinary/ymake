@@ -42,22 +42,30 @@ parser=None
 def compile(project,graph,name):
     G = nx.DiGraph(graph)
     # 执行拓扑排序
-    topological_order = list(nx.topological_sort(G))
-    total_nodes = len(topological_order)
+    topological_order = [] 
+
     toolchain_name=project.get('toolchain')
+
+    if name:
+        t=project.get('target-objs').get(name)
+        topological_order=get_dep_order(t)
+        topological_order.append(name)
+    else:
+        topological_order=(list(nx.topological_sort(G)))
+        topological_order.reverse()
+   
+    total_nodes=len(topological_order)
 
     # 根据拓扑排序的顺序反向遍历节点，并编译代码
     compiled_code = []
     start_time = datetime.datetime.now()
     build_target=[]
-    for i,node in enumerate(reversed(topological_order)):
+    for i,node in enumerate(topological_order):
         # 编译节点对应的代码
         # print('node===>',node,project.get('target-objs'))
 
         target=project.get('target-objs').get(node)
-        if name and target:
-            if not (target.get('name')==name ):
-                continue
+
         if not target:
             log.error('not found target {}'.format(node))
             return

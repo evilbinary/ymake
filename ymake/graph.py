@@ -38,7 +38,7 @@ def build_dep_graph(graph,target,kind=None):
         graph[d]= n.get('deps')
 
 
-def get_dep_order(target,kind):
+def get_dep_order(target,kind=None):
     project=nodes_get_all_type('project')
     graph={}
     if len(project)>0:

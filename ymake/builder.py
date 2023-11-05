@@ -81,10 +81,10 @@ def get_target_include(target):
                     include=['-I' + os.path.relpath(os.path.join(n_build_lib_dir,item)) for item in include]
                     include=include + get_include(n)
                     includes+=include
-                
-                include=['-I' + os.path.relpath(os.path.join(n_build_dir,item)) for item in include]
-                include=include + get_include(n)
-                includes+=include
+                else:
+                    include=['-I' + os.path.relpath(os.path.join(n_build_dir,item)) for item in include]
+                    include=include + get_include(n)
+                    includes+=include
                 includes+=get_target_include(n)
 
     includes=list(set(includes))
@@ -142,7 +142,7 @@ def get_target_ldflags(target):
     deps=target.get('deps')
     if deps:
         topological_order= get_dep_order(target,['static','shared','lib'])
-        log.debug('dep orders ',topological_order)
+        log.debug('dep orders {}'.format(topological_order))
         for d in topological_order:
             n=nodes_get_type_and_name('target',d)
             if not n:
