@@ -48,6 +48,9 @@ def compile(project,graph,name):
 
     if name:
         t=project.get('target-objs').get(name)
+        if not t:
+            log.error('not found target {}'.format(name))
+            return
         topological_order=get_dep_order(t)
         topological_order.append(name)
     else:

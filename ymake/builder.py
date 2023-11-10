@@ -167,12 +167,12 @@ def get_target_ldflags(target):
                 lib_file=get_build_target(n)
                 if os.path.exists(lib_file):
                     flags+=['-L'+n_build_dir]
-                    flags+=['-l'+d]+ flags
+                    flags=['-l'+d]+ flags
 
 
 
 
-    log.debug('ldflags no uniq======>{}'.format(flags))
+    log.debug('ldflags no uniq======>{} {}'.format(len(flags),target.get('name')))
 
     flags=list(OrderedDict.fromkeys(flags))
     lib_path_flags = []
@@ -187,7 +187,7 @@ def get_target_ldflags(target):
             flags_rest.append(f)
 
     flags=lib_path_flags+flags_rest+lib_name_flags
-    log.debug('ldflags======>{}'.format(flags))
+    log.debug('ldflags======>{} len: {}'.format(flags,len(flags)))
     return flags
 
 def rule_fill(rule,target,key):
@@ -200,7 +200,7 @@ def rule_fill(rule,target,key):
     if not isinstance(val,list):
         val=[val]
 
-    node_op_extend(target,key,val,1,True)
+    node_op_extend(target,key,val,True,True)
 
 
 def rule_build(target):
@@ -292,9 +292,9 @@ def build_prepare(tool,target,opt={}):
 
     if not file_objs or len(file_objs)< len(files):
         dir_name=target['file-path'] 
-        log.debug('prepare files=>'.format(files))
+        log.debug('prepare files=>{}'.format(files))
         files=[format_target_var(target,item) for item in files ]
-        log.debug('prepare fomrat files=>'.format(files))
+        log.debug('prepare format files=>{}'.format(files))
         
         build_obj_dir=node_get_formated(target,'build-obj-dir')
 

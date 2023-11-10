@@ -258,11 +258,13 @@ def set_toolchains(tool):
 
 
 def add_files(*files,rules=None):
-    node_extend('files',files)
+
     cur=node_current()
     dir_name=cur['file-path']  
 
     files=get_list_args(files)
+
+    node_extend('files',files)
 
     files=[format_target_var(cur,item) for item in files ]
     node_set('file-rules',rules)
