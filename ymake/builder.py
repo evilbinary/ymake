@@ -167,7 +167,7 @@ def get_target_ldflags(target):
                 lib_file=get_build_target(n)
                 if os.path.exists(lib_file):
                     flags+=['-L'+n_build_dir]
-                    flags=['-l'+d]+ flags
+                    flags+=['-l'+d]
 
 
 
