@@ -403,7 +403,8 @@ def gcc_build(tool,target,opt={}):
         file_obj_dirs.add(file_obj_dir)
     
     for file_obj_dir in file_obj_dirs:
-        os.makedirs(file_obj_dir,exist_ok=True)
+        if file_obj_dir:
+            os.makedirs(file_obj_dir,exist_ok=True)
 
     is_modify_target=False
     if not os.path.exists(build_target):
