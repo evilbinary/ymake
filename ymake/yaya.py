@@ -229,6 +229,21 @@ def run(name):
         for target in targets:
             print('    {}'.format(target.get('name')))
 
+
+def load():
+    ya=os.path.join(os.getcwd(),"./ya.py")
+    ya=os.path.normpath(ya)
+    add_subs(ya)
+
+def process_option(parser):
+    options=nodes_get_all_type('option')
+    for o in options:
+        if o.get('args'):
+            parser.add_argument('--'+o.get('name'),nargs=o.get('args'), default=o.get('default'), help=o.get('description'))
+        else:
+            parser.add_argument('--'+o.get('name'),action='store_true', default=o.get('default'), help=o.get('description'))
+    return options
+
 def init():
     global is_init,parser,args,verborse
     root('root')
@@ -284,7 +299,7 @@ def init():
     print('welcome to use {}ymake{} {} ,make world happy ^_^!!'.format(Fore.GREEN,Style.RESET_ALL,version))
 
     # 创建参数解析器
-    parser = argparse.ArgumentParser(allow_abbrev=True)
+    parser = argparse.ArgumentParser(allow_abbrev=True,add_help=False)
 
     parser.add_argument('-v',nargs='?', default=None, help='verborse info debug error')
     parser.add_argument('-r','-run',nargs='?', default=None, help='run the project target.')
@@ -294,9 +309,19 @@ def init():
     parser.add_argument('-c','-clean',nargs='?', default=None, help='clean the project target.')
     parser.add_argument('-p','-plat',nargs='?', default=None, help='select the project platform.')
 
-    args = parser.parse_args()
-    
+    parser.add_argument('-h','--help',action='store_true', default=None, help='help')
+
+    args,unknown = parser.parse_known_args()
+
     verborse=args.v
+    if args.help :
+        load()
+        process_option(parser)
+        # 解析命令行参数
+        args = parser.parse_args()
+        parser.print_help()
+
+        exit(0)
 
     if args.v=='D':
         log.setLevel(logging.DEBUG)
@@ -322,14 +347,9 @@ def process():
         is_process=True
 
         # 添加参数
-        options=nodes_get_all_type('option')
-        for o in options:
-            parser.add_argument('--'+o.get('name'),nargs='?', default=o.get('default'), help=o.get('description'))
-
+        options=process_option(parser)
         # 解析命令行参数
         args = parser.parse_args()
-
-
         for o in options:
             n=o.get('name').replace('-','_')
             v=getattr(args, n)
@@ -349,9 +369,7 @@ def process():
 
 if __name__ == 'yaya':
     init()
-    ya=os.path.join(os.getcwd(),"./ya.py")
-    ya=os.path.normpath(ya)
-    add_subs(ya)
+    load()
     process()
 
 else:
