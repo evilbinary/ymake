@@ -96,9 +96,9 @@ def compile(project,graph,name):
     end_time = datetime.datetime.now()
     time_diff=end_time-start_time
     if len(build_target)>0:
-        print("{}build success!{} const {}".format(Fore.GREEN,Style.RESET_ALL,time_diff) )
+        print("{}build success!{} cost {}".format(Fore.GREEN,Style.RESET_ALL,time_diff) )
     else:
-        print("{}build nothing not target found!{} const {}".format(Fore.GREEN,Style.RESET_ALL,time_diff) )
+        print("{}build nothing not target found!{} cost {}".format(Fore.GREEN,Style.RESET_ALL,time_diff) )
 
 class CustomEncoder(json.JSONEncoder):
     cache={}
@@ -188,9 +188,9 @@ def clean_target(project,graph,name):
     end_time = datetime.datetime.now()
     time_diff=end_time-start_time
     if len(build_target)>0:
-        print("{}clean success!{} const {}".format(Fore.GREEN,Style.RESET_ALL,time_diff) )
+        print("{}clean success!{} cost {}".format(Fore.GREEN,Style.RESET_ALL,time_diff) )
     else:
-        print("{}clean nothing not target found!{} const {}".format(Fore.GREEN,Style.RESET_ALL,time_diff) )
+        print("{}clean nothing not target found!{} cost {}".format(Fore.GREEN,Style.RESET_ALL,time_diff) )
 
 def clean(name=None):
     node_finish()
@@ -304,7 +304,7 @@ def init():
     parser.add_argument('-v',nargs='?', default=None, help='verborse info debug error')
     parser.add_argument('-r','-run',nargs='?', default=None, help='run the project target.')
     parser.add_argument('-j',nargs='?', default=1, help='job number')
-    parser.add_argument('-m','-mode',nargs='?', default=None, help='build mode debug relase')
+    parser.add_argument('-m','-mode',nargs='?', default=None, help='build mode debug release')
     parser.add_argument('-b','-build',nargs='?', default=None, help='build the project target.')
     parser.add_argument('-c','-clean',nargs='?', default=None, help='clean the project target.')
     parser.add_argument('-p','-plat',nargs='?', default=None, help='select the project platform.')
