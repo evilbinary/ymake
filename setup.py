@@ -6,7 +6,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 setuptools.setup(
     name="yymake",
-    version="0.6.9",
+    version="0.7.1",
     author="evilbinary",
     author_email="rootntsd@gmail.com",
     description="A corss build dsl make tool",
@@ -26,7 +26,7 @@ setuptools.setup(
             'ya = yaya:process',
             'yaya = yaya:process',
             'ymake = yaya:process',
-
+            'yymake = yaya:process',
         ],
     },
     package_dir={"": "ymake"},
