@@ -228,8 +228,7 @@ def run(name):
         targets=nodes_get_all_type('target')
         for target in targets:
             print('    {}'.format(target.get('name')))
-
-
+    
 def load():
     ya=os.path.join(os.getcwd(),"./ya.py")
     ya=os.path.normpath(ya)
@@ -322,6 +321,12 @@ def init():
         parser.print_help()
 
         exit(0)
+   
+    log.debug('args=>',unknown)
+    # 添加参数
+    for name in unknown:
+        n=name.replace('--','')
+        option(n,value=True)        
 
     if args.v=='D':
         log.setLevel(logging.DEBUG)
@@ -345,16 +350,6 @@ def process():
             return
 
         is_process=True
-
-        # 添加参数
-        options=process_option(parser)
-        # 解析命令行参数
-        args = parser.parse_args()
-        for o in options:
-            n=o.get('name').replace('-','_')
-            v=getattr(args, n)
-            o['value']=v
-
        
         if args.c:
             clean(args.c)

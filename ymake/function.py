@@ -142,14 +142,21 @@ def toolchain(name, **kwargs):
     node_start(node)
 
 def option(name,**kwargs):
-    node={
-        'name': name,
-        'type':'option',
-        'description':'',
-        'showmenu':False,
-    }
-    node.update(kwargs)
-    node_start(node)
+    node=nodes_get_type_and_name('option',name)
+    if not node:
+        node={
+            'name': name,
+            'type':'option',
+            'description':'',
+            'default': False,
+            'showmenu':False,
+        }
+        node.update(kwargs)
+        node_start(node)
+    else:
+        node.update(kwargs)
+        node_start(node)
+        node['parent']=None
 
 def root(name, **kwargs):
     node={
@@ -221,8 +228,11 @@ def on_load(fn):
     node_extend('on_load',fn)
 
 def set_default(t):
+    cur=node_current()
     node_set('default',t)
-
+    if None==cur.get('value'):
+        cur['value']=t
+        
 def set_showmenu(t):
     node_set('showmenu',t)
 
@@ -496,7 +506,7 @@ def has_config(*names):
     count=0
     for name in names:
         ret=nodes_get_type_and_name('option',name)
-        if ret and ret['default']:
+        if ret and ret['value']:
             count+=1
     if count==len(names):
         return True
