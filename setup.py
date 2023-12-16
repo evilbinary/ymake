@@ -9,7 +9,7 @@ setuptools.setup(
     version="0.7.2",
     author="evilbinary",
     author_email="rootntsd@gmail.com",
-    description="A corss build dsl make tool",
+    description="A cross build dsl make tool",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/evilbinary/ymake",
