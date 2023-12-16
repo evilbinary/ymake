@@ -263,7 +263,8 @@ def test_automake():
 
 def test_option():
     option('abc')
-
+    set_default(True)
+    
     a=has_config('abc')
     assert a==True
 
