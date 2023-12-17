@@ -506,7 +506,6 @@ def has_config(*names):
     count=0
     for name in names:
         ret=nodes_get_type_and_name('option',name)
-        print('ret=>',ret)
         if ret and ret.get('value'):
             count+=1
     if count==len(names):
