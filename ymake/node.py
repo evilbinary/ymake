@@ -152,6 +152,12 @@ class Node(dict):
     def get_arch(self):
         return self.get('arch')
 
+    def arch(self):
+        return self.get('arch')
+
+    def arch_type(self):
+        return self.get('arch_type')
+
     def get_arch_type(self):
         return self.get('arch_type')
 

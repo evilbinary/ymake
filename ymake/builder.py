@@ -280,6 +280,8 @@ def tool_build(target):
 def build_prepare(tool,target,opt={}):
     rule_build(target)
 
+    call_hook_event(target,'on_load')
+
     call_hook_event(target,'on_config')
 
     files= target.get('files')
