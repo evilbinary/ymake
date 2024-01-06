@@ -293,6 +293,11 @@ def init():
     rule_end()
 
     rule('mode.release')
+    def build_config(target):
+        if is_mode("release"):
+            target.add('cflags',"-O2")
+        pass
+    on_config(build_config)
     rule_end()
 
     print('welcome to use {}ymake{} {} ,make world happy ^_^!!'.format(Fore.GREEN,Style.RESET_ALL,version))

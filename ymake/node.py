@@ -257,7 +257,7 @@ def node_op_extend(n,key,value,t=True,nodup=False):
         # print('call==>',caller_file_path)        
         # print('get=>',value,'==>',list(value) )
         if isinstance(value,list):
-            n[key]=value
+            n[key]=list(set(value))
         elif isinstance(value,tuple):
             n[key]=list(value)
         else:

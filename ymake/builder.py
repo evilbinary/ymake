@@ -195,7 +195,7 @@ def rule_fill(rule,target,key):
     if not val:
         return
     
-    log.debug('rule fill rule key={} target name ={} target key {} rule key=>{}'.format(key,target.get('name'),target.get(key),val ))
+    log.debug('apply rule {} key={} target name ={} target key {} rule key=>{}'.format(rule.get('name'),key,target.get('name'),target.get(key),val ))
 
     if not isinstance(val,list):
         val=[val]
