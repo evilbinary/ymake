@@ -256,7 +256,7 @@ def node_extend(key,value,t=1):
     n=node_current()
     return node_op_extend(n,key,value,t)
 
-def node_op_extend(n,key,value,t=True,nodup=False):
+def node_op_extend(n,key,value,tail=True,nodup=False):
     if not n.get(key):       
         # caller_frame = inspect.currentframe().f_back
         # caller_file_path = inspect.getframeinfo(caller_frame)
@@ -270,14 +270,16 @@ def node_op_extend(n,key,value,t=True,nodup=False):
             n[key]=[value]
         return value
     if nodup:
-        value=list(set(value))
+        # value=list(set(value))
+        value= list(sorted(set(value), key=value.index))
 
-    if t:
+    if tail:
         n[key].extend(value)
     else:
         n[key][:0]=value
     if nodup:
-        n[key]=list(set(n[key]))
+        n[key]=list(sorted(set(n[key]), key=n[key].index))
+        # n[key]=list(set(n[key]))
     
     # print('get1=>',n.get(key),'==',value)
 
