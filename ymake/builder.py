@@ -367,6 +367,7 @@ def gcc_build(tool,target,opt={}):
         format(target.get("name"),
         target.get('files')
         ))
+        return
     modify_file_objs=[]
     
     log.debug('{} {} build {}'.format(target.get('type'),target.get('name'),file_objs))
@@ -409,6 +410,9 @@ def gcc_build(tool,target,opt={}):
             os.makedirs(file_obj_dir,exist_ok=True)
 
     is_modify_target=False
+
+    log.debug('target {} is exist {} {}'.format(target.get('name'),build_target,os.path.exists(build_target)))
+
     if not os.path.exists(build_target):
         is_modify_target=True
     
@@ -441,7 +445,7 @@ def gcc_build(tool,target,opt={}):
 
     extend=target.get('extensions')
     file_rules=target.get('file-rules')
-    
+
     if is_modify_target or is_modify_obj:
         call_hook_event(target,'on_build')
 
@@ -481,7 +485,7 @@ def gcc_build(tool,target,opt={}):
     ldflags=get_target_ldflags(target)
     log.debug('ldflags {}'.format(ldflags))
 
-    if len(modify_file_objs)==0:
+    if len(modify_file_objs)==0 and not is_modify_target:
         log.warn('target {} obj file is 0'.format(target.get('name')))
         return
 
