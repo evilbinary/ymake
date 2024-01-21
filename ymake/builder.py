@@ -25,6 +25,7 @@ def get_build_target(target,path='',name=''):
     elif target.get('kind')=='shared':
         ext='.so'
         prefix='lib'
+
     if not name:
         name=target.get("name")
     if target.get('filename'):
@@ -421,6 +422,8 @@ def gcc_build(tool,target,opt={}):
     for d in deps:
         n=nodes_get_type_and_name('target',d)
         t=get_build_target(n)
+        if n.get('kind')=='lib':
+            continue
         is_modify=tool.get('is_modify')(t,t)
         if is_modify:
             is_modify_target=True

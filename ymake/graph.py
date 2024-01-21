@@ -38,7 +38,7 @@ def build_dep_graph(graph,target,kind=None):
         graph[d]= n.get('deps')
 
 
-def get_dep_order(target,kind=None):
+def get_dep_order(target,kind=None,reverse=False):
     project=nodes_get_all_type('project')
     graph={}
     if len(project)>0:
@@ -52,7 +52,8 @@ def get_dep_order(target,kind=None):
     for i in single:
         topological_order.remove(i)
     topological_order+=single
-
+    if reverse:
+        topological_order.reverse()
     return topological_order
 
 def find_cycles(graph):

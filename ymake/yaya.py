@@ -52,6 +52,7 @@ def compile(project,graph,name):
             log.error('not found target {}'.format(name))
             return
         topological_order=get_dep_order(t)
+        topological_order.reverse()
         topological_order.append(name)
     else:
         topological_order=(list(nx.topological_sort(G)))
