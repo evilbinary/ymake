@@ -572,6 +572,15 @@ def is_file_modified(source_file,target_file):
         # print('source_file=>',source_file,'target_file->',target_file)
         # print('source_modified=>',source_modified,'output_modified->',output_modified,'is modify=>',source_modified > output_modified)
         return source_modified > output_modified
+        # if source_modified > output_modified:
+        #     return True
+        # else:
+        #     s1_size = cache.get('msize:'+target_file,default=0)
+        #     s2 = os.stat(target_file)
+        #     if s1_size!=s2.st_size:
+        #         cache.set('msize:'+target_file,s2.st_size)
+        #         return True
+        #     return False
     except:
         return True
 

@@ -418,13 +418,13 @@ def gcc_build(tool,target,opt={}):
         is_modify_target=True
     
     # deps change
-    deps=target.get('deps')
+    deps= get_dep_order(target)
     for d in deps:
         n=nodes_get_type_and_name('target',d)
         t=get_build_target(n)
         if n.get('kind')=='lib':
             continue
-        is_modify=tool.get('is_modify')(t,t)
+        is_modify=tool.get('is_modify')(t,build_target)
         if is_modify:
             is_modify_target=True
 
