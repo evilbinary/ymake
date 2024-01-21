@@ -445,6 +445,8 @@ def gcc_build(tool,target,opt={}):
     if is_modify_target or is_modify_obj:
         call_hook_event(target,'on_build')
 
+    log.debug('file is modify objs==> {}'.format(modify_file_objs))
+
     for f in modify_file_objs:
         src=f.get('src')
         obj=f.get('obj')
@@ -479,8 +481,8 @@ def gcc_build(tool,target,opt={}):
     ldflags=get_target_ldflags(target)
     log.debug('ldflags {}'.format(ldflags))
 
-    if len(file_objs)==0:
-        log.warn('obj file is 0')
+    if len(modify_file_objs)==0:
+        log.warn('target {} obj file is 0'.format(target.get('name')))
         return
 
     build_target_commands=[]
@@ -506,6 +508,8 @@ def gcc_build(tool,target,opt={}):
 
 def build_cmd(command,info):
     target=command[0]
+    log.debug('build cmd=>{}'.format(command))
+
     cmd(command[1],command[2])
 
     log.debug('info=>{}'.format(info))

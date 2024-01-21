@@ -26,7 +26,7 @@ dist: ymake/*.py setup.py
 	rm -rf dist
 	$(PYTHON) -m build
 
-dev:
+dev: clean
 	$(PYTHON) setup.py develop
 
 install:
@@ -34,4 +34,4 @@ install:
 
 clean:
 	$(PYTHON) setup.py clean --all
-	pip3 uninstall yymake
+	$(PYTHON) -m pip uninstall yymake -y
