@@ -367,6 +367,10 @@ def process():
             run(args.r)
     except (KeyboardInterrupt):
         pass
+    except Exception as e:
+        if verborse=='D':
+            raise e
+        pass
 
 if __name__ == 'yaya':
     init()
