@@ -290,6 +290,7 @@ def get_build_dir():
 def get_build_obj_dir():
     cur=node_current()
     build_obj_dir=node_get_parent(cur,'build-obj-dir')
+    build_obj_dir=node_get_formated(cur,'build-obj-dir')
     return build_obj_dir
 
 def add_deps(*deps):
