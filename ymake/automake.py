@@ -67,8 +67,11 @@ def build(tool,target,opt={}):
     except Exception as e:
         print('build error',e)
         pass
-
-    shell(tool.get('make'),['install','-j'+str(jobnum)],cwd=sourcedir)
+    try:
+        shell(tool.get('make'),['install','-j'+str(jobnum)],cwd=sourcedir)
+    except Exception as e:
+        shell(tool.get('make'),['-j'+str(jobnum)],cwd=sourcedir)
+        pass
 
     pass
     
