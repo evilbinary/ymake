@@ -74,8 +74,9 @@ def get_target_include(target):
                 n_build_dir=node_get_formated(n,'build-dir')
                 n_build_lib_dir =node_get_formated(n,'build-lib-dir')
                 if not n_build_lib_dir:
-                    tool=node_get_parent(n,'toolchain')
-                    build_prepare(tool,n)
+                    toolchain_name=node_get_parent(n,'toolchain')
+                    toolchain=nodes_get_type_and_name('toolchain',toolchain_name)
+                    build_prepare(toolchain,n)
                     n_build_lib_dir =node_get_formated(n,'build-lib-dir')
 
                 if n_build_lib_dir:
@@ -173,8 +174,7 @@ def get_target_ldflags(target):
 
 
 
-    log.debug('ldflags no uniq======>{} {}'.format(len(flags),target.get('name')))
-
+    log.debug('ldflags no uniq======>{} {}'.format(len(flags),target.get('name')))    
     flags=list(OrderedDict.fromkeys(flags))
     lib_path_flags = []
     lib_name_flags = []
@@ -305,7 +305,10 @@ def build_prepare(tool,target,opt={}):
         obj_files=[]
         
         kind=None
-        normal_kind=['c','cc','cxx','cpp','s','h','hpp']
+
+        normal_kind=tool.get('ext')
+        if not normal_kind:
+            normal_kind=['c','cc','cxx','cpp','s','h','hpp','S']
         for f in match_files:
             ext=get_ext(f)
             obj_name=get_object_name(f)
@@ -316,6 +319,7 @@ def build_prepare(tool,target,opt={}):
                 })
             if ext not in normal_kind:
                 kind='rule'
+                log.warn('target %s kind set rule, file is %s',target.get('name'),f)
 
         if len(match_files)<=0:
             match_files=file_match(files)            
@@ -328,6 +332,8 @@ def build_prepare(tool,target,opt={}):
                 ext=get_ext(f)
                 if ext not in normal_kind:
                     kind='rule'
+                    log.warn('target %s kind set rule, file is %s',target.get('name'),f)
+
         if kind:
             target.set('kind',kind)
         
@@ -412,9 +418,11 @@ def gcc_build(tool,target,opt={}):
 
     is_modify_target=False
 
-    log.debug('target {} is exist {} {}'.format(target.get('name'),build_target,os.path.exists(build_target)))
+    is_target_exist=os.path.exists(build_target)
 
-    if not os.path.exists(build_target):
+    log.debug('target {} is exist {} {}'.format(target.get('name'),build_target,is_target_exist))
+
+    if not is_target_exist:
         is_modify_target=True
     
     # deps change
@@ -429,11 +437,15 @@ def gcc_build(tool,target,opt={}):
             is_modify_target=True
 
 
+    log.debug('target modify objs num %o , modify target %o ',len(modify_file_objs),is_modify_target )
+
     if len(modify_file_objs)<=0 and not is_modify_target:
         call_hook_event(target,'after_link')
         call_hook_event(target,'after_build')
         return
-        
+    
+    log.debug('target %s kind is %s',target.get('name'),target.get('kind'))
+
     includedirs=get_target_include(target)
     log.debug("includedirs {}".format(includedirs))
 
@@ -464,7 +476,7 @@ def gcc_build(tool,target,opt={}):
 
         ext=get_ext(obj)
 
-        if src[-2:] in [".c",".s"]:
+        if src[-2:] in [".c",".s",".S"]:
             build_commands.append([obj_name,tool.get("cc"),[src]+cflags+includedirs+['-c','-o',obj] ])
         elif src.endswith(".cpp") or obj_name.endswith(".cc"):
             build_commands.append([obj_name,tool.get("cxx"),[src]+cxxflags+includedirs+['-c','-o',obj] ])
@@ -491,7 +503,6 @@ def gcc_build(tool,target,opt={}):
     if len(modify_file_objs)==0 and not is_modify_target:
         log.warn('target {} obj file is 0'.format(target.get('name')))
         return
-
     build_target_commands=[]
     if target.get('kind')=='static':
          build_target_commands.append([build_target,tool.get("ar"),['-r',build_target]+file_objs ])
@@ -504,7 +515,7 @@ def gcc_build(tool,target,opt={}):
         build_target_commands.append([build_target,tool.get("ld"),file_objs+['-o',build_target]+ ldflags ])
         process_build(build_target_commands,progress_info,jobnum)
     else:
-
+        log.error('target {} kind {} not found'.format(target.get('name'),target.get('kind')))
         pass
     
 

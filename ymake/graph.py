@@ -6,6 +6,7 @@
 # ********************************************************************
 import networkx as nx
 from node import nodes_get_type_and_name,nodes_get_all_type
+from log import log
 
 def build_graph(project,kind=None):
     graph={}    
@@ -31,12 +32,22 @@ def build_graph(project,kind=None):
     return graph
 
 def build_dep_graph(graph,target,kind=None):
-    deps=target.get('deps')
-    for d in deps:
-        n=nodes_get_type_and_name('target',d)
-        build_dep_graph(graph,n,kind)
-        graph[d]= n.get('deps')
-
+    try:
+        deps=target.get('deps')
+        for d in deps:
+            n=nodes_get_type_and_name('target',d)
+            if not n:
+                log.warn('target %s get deps %s not found',target.get('name'),d)
+                print(target)
+                continue
+            build_dep_graph(graph,n,kind)
+            if n:
+                graph[d]= n.get('deps')
+    except Exception as ex:
+        if target and target.get('name'):
+            log.error('target %s get deps erro ',target.get('name'),ex)
+        else:
+            log.error('target is null get deps erro',ex)
 
 def get_dep_order(target,kind=None,reverse=False):
     project=nodes_get_all_type('project')
