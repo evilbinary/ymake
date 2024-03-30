@@ -653,7 +653,10 @@ def import_source(file):
     module.target=target
     module.rule=rule
     module.project=project
+    module.toolchain=toolchain
 
+
+    module.rule_end=target_end
     module.rule_end=rule_end
     module.project_end=project_end
     module.toolchain_end=toolchain_end
