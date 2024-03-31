@@ -143,7 +143,7 @@ class Node(dict):
         return None
 
     def get(self,key):
-        if key in['arch_type','arch' ]:
+        if key in['arch_type','arch','plat' ]:
             return node_get_parent(self,key)
         if key in self:
             return self[key]
