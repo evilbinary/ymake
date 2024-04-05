@@ -124,19 +124,21 @@ def target(name, **kwargs):
 
 def toolchain(name, **kwargs):
     prefix=kwargs.pop('prefix','')
+    suffix=kwargs.pop('suffix','')
     node = {
         'name': name,
         'type':'toolchain',
-        'cc': prefix+'gcc',
-        'cxx': prefix+'c++',
-        'ld': prefix+'ld',
-        'ar': prefix+'ar',
-        'as': prefix+'as',
-        'objcopy': prefix+'objcopy',
-        'sh': prefix+'gcc',
-        'ranlib': prefix+'ranlib',
+        'cc': prefix+'gcc'+suffix,
+        'cxx': prefix+'c++'+suffix,
+        'ld': prefix+'ld'+suffix,
+        'ar': prefix+'ar'+suffix,
+        'as': prefix+'as'+suffix,
+        'objcopy': prefix+'objcopy'+suffix,
+        'sh': prefix+'gcc'+suffix,
+        'ranlib': prefix+'ranlib'+suffix,
         'is_modify': is_file_modified,
         'prefix': prefix,
+        'suffix': suffix
     }
     node.update(kwargs)
     node_start(node)

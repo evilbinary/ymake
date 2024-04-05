@@ -38,7 +38,7 @@ def build_dep_graph(graph,target,kind=None):
             n=nodes_get_type_and_name('target',d)
             if not n:
                 log.warn('target %s get deps %s not found',target.get('name'),d)
-                print(target)
+                log.warn('target info is %s',target)
                 continue
             build_dep_graph(graph,n,kind)
             if n:

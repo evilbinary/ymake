@@ -253,7 +253,7 @@ def init():
     toolchain('gcc',build=gcc_build,build_prepare=build_prepare)
     if platform.system()=='Darwin':
         add_ldflags('-lSystem')
-        add_ldflags('-arch', platform.machine())
+        #add_ldflags('-arch', platform.machine())
     elif platform.system()=='Linux':
         add_ldflags('-lc')
         cur=node_current()
@@ -280,6 +280,16 @@ def init():
         build=gcc_build,
         build_prepare=build_prepare,
         clean=gcc_clean)
+
+    toolchain('gcc-13',
+    prefix='gcc-',
+    suffix='-13',
+    build=gcc_build,build_prepare=build_prepare)
+    add_ldflags('-lc')
+    cur=node_current()
+    prefix= cur.get('prefix')
+    set_toolset('ld',prefix+'')
+    set_toolset('cc','gcc-13')
 
     toolchains_init()
     toolchain_end()
