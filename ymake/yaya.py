@@ -291,6 +291,13 @@ def init():
     set_toolset('ld',prefix+'')
     set_toolset('cc','gcc-13')
 
+    toolchain('aarch64-none-elf',
+        prefix='aarch64-none-elf-',
+        build=gcc_build,
+        build_prepare=build_prepare,
+        clean=gcc_clean)
+    
+
     toolchains_init()
     toolchain_end()
 
