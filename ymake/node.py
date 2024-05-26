@@ -254,6 +254,8 @@ def node_update(data):
 
 def node_extend(key,value,t=1):
     n=node_current()
+    if not isinstance(value,list):
+        value=[value]
     return node_op_extend(n,key,value,t)
 
 def node_op_extend(n,key,value,tail=True,nodup=False):
