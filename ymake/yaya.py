@@ -297,6 +297,11 @@ def init():
         build_prepare=build_prepare,
         clean=gcc_clean)
     
+    toolchain('xtensa-esp32-elf',
+    prefix='xtensa-esp32-elf-',
+    build=gcc_build,
+    build_prepare=build_prepare,
+    clean=gcc_clean)
 
     toolchains_init()
     toolchain_end()
