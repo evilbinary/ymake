@@ -50,14 +50,17 @@ def shell(cmd,args=[],**kwargs):
             s+=str(output)
         raise Exception(s)
 
+import shlex
 
 def cmd(cmd,args=[],**kwargs):
-    cmds = [cmd]+args
+    args_list = shlex.split(' '.join(args))
+    log.debug('args_list =>{}'.format(args_list))
+
+    cmds = [cmd]+ args_list
     log.debug('cmds =>{}'.format(cmds))
     env=kwargs.pop('env',None)
     cwd=kwargs.pop('cwd',None)
-
-    print(' '.join(cmds))
+    
     process=None
     if env:
         process = subprocess.Popen(cmds, shell=False, env=env,cwd=cwd)

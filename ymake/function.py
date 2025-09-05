@@ -376,10 +376,9 @@ def add_cxxflags(*cflags,**kwargs):
 def add_ldflags(*ldflags,**kwargs):
     before=kwargs.pop('before',True)
 
-    ldflags=get_list_args(ldflags)
+    #ldflags=get_list_args(ldflags,'')
     cur=node_current()
     ldflags=[format_target_var(cur,item) for item in ldflags ]
-    # print('============>ldflags',ldflags)
 
     node_extend('ldflags',ldflags,0)
 

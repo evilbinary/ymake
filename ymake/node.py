@@ -77,11 +77,11 @@ def node_get_formated(target,key):
     return build_dir
 
 
-def get_list_args(args):
+def get_list_args(args,sep=' '):
     ret=[]
     for a in args:
         if isinstance(a,str):
-            s=a.split(' ')
+            s=a.split(sep)
             if len(s)>0:
                 ret+=[x for x in s if x != '']
             else:

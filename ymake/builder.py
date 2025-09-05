@@ -173,7 +173,6 @@ def get_target_ldflags(target):
 
 
 
-
     log.debug('ldflags no uniq======>{} {}'.format(len(flags),target.get('name')))    
     flags=list(OrderedDict.fromkeys(flags))
     lib_path_flags = []
@@ -182,7 +181,7 @@ def get_target_ldflags(target):
     for f in flags:
         if f.startswith('-L'):
             lib_path_flags.append(f)
-        elif f.startswith('-l'):
+        elif f.startswith('-l') or f.startswith('-f'):
             lib_name_flags.append(f)
         else:
             flags_rest.append(f)
