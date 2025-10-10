@@ -265,7 +265,12 @@ def node_op_extend(n,key,value,tail=True,nodup=False):
         # print('call==>',caller_file_path)        
         # print('get=>',value,'==>',list(value) )
         if isinstance(value,list):
-            n[key]=list(set(value))
+            # Handle case where list might contain unhashable elements
+            try:
+                n[key] = list(set(value))
+            except TypeError:
+                # If elements are unhashable (like lists), keep them as-is without removing duplicates
+                n[key] = value.copy() if hasattr(value, 'copy') else list(value)
         elif isinstance(value,tuple):
             n[key]=list(value)
         else:

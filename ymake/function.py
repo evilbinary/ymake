@@ -378,8 +378,9 @@ def add_ldflags(*ldflags,**kwargs):
 
     #ldflags=get_list_args(ldflags,'')
     cur=node_current()
-    ldflags=[format_target_var(cur,item) for item in ldflags ]
-
+    # 过滤掉空的item
+    ldflags = [formatted_item for item in ldflags if (formatted_item := format_target_var(cur, item))]
+    
     node_extend('ldflags',ldflags,0)
 
 def add_toolchain_dirs(*path):
@@ -768,5 +769,3 @@ def print_progress(type,progress,total_nodes,node,opt=None):
         print("{}[{:.0f}%]:{} {}{} target {}{}"
             .format( Fore.GREEN,progress/total_nodes*100 ,type,Style.RESET_ALL,Fore.MAGENTA,node,Style.RESET_ALL)
         )
-
-
