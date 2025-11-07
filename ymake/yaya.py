@@ -180,7 +180,11 @@ def clean_target(project,graph,name):
             'progress':i,
             'total_nodes':total_nodes
         }
-        toolchain.get('build_prepare')(toolchain,target,opt)
+        if toolchain.get('build_prepare'):
+            toolchain.get('build_prepare')(toolchain,target,opt)
+        print('clean target',toolchain)
+
+        #if toolchain.get('clean'):
         toolchain.get('clean')(toolchain,target,opt)
         progress = i + 1
         print_progress('clean',progress,total_nodes,node)
@@ -250,7 +254,7 @@ def init():
     add_toolchain_dirs('toolchains')
     
     # 默认工具
-    toolchain('gcc',build=gcc_build,build_prepare=build_prepare)
+    toolchain('gcc',build=gcc_build,build_prepare=build_prepare,clean=gcc_clean)
     if platform.system()=='Darwin':
         add_ldflags('-lSystem')
         #add_ldflags('-arch', platform.machine())
