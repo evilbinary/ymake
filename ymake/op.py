@@ -53,7 +53,11 @@ def shell(cmd,args=[],**kwargs):
 import shlex
 
 def cmd(cmd,args=[],**kwargs):
-    args_list = shlex.split(' '.join(args))
+    # Simple approach: use args directly without shlex.split for Windows paths
+    if any('\\' in arg for arg in args):
+        args_list = args
+    else:
+        args_list = shlex.split(' '.join(args))
     log.debug('args_list =>{}'.format(args_list))
 
     cmds = [cmd]+ args_list

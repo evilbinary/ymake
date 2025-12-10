@@ -1,5 +1,5 @@
 PYTHON=python3.11
-
+PYTHON="D:\Program Files (x86)\python3\python.exe"
 
 all: test
 

@@ -1,8 +1,9 @@
 from time import time
 import setuptools
 import os,sys,re
+import codecs
 
-with open("README.md", "r") as fh:
+with codecs.open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 setuptools.setup(
     name="yymake",
