@@ -24,7 +24,7 @@ upload: dist
 
 dist: ymake/*.py setup.py
 	rm -rf dist
-	$(PYTHON) -m build
+	$(PYTHON) -m build --no-isolation
 
 dev: clean
 	$(PYTHON) setup.py develop
