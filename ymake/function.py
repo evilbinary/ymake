@@ -395,6 +395,20 @@ def get_toolchain():
     tool=node_get_parent(n,'toolchain')
     return tool
 
+def get_toolchain_node():
+    n=node_current()
+    toolchain_name=node_get_parent(n,'toolchain')
+    toolchain=nodes_get_type_and_name('toolchain',toolchain_name)
+    return toolchain
+
+def set_toolchain_node(name,**kwargs):
+    toolchain=nodes_get_type_and_name('toolchain',name)
+    if not toolchain:
+        log.error('set_toolchain_node not found toolchain {}'.format(name))
+        return
+    toolchain.update(kwargs)
+    node_start(toolchain)
+    
 def set_sourcedir(dir):
     node_set('sourcedir',dir)
 
@@ -667,7 +681,9 @@ def import_source(file):
     module.option_end=option_end
     module.set_showmenu=set_showmenu
     module.set_description=set_description
-
+    module.set_toolset=set_toolset
+    module.get_toolchain_node=get_toolchain_node
+    module.set_toolchain_node=set_toolchain_node
 
 
     module.true=True
