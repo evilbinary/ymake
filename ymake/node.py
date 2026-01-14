@@ -241,7 +241,7 @@ def node_get_parent_all(n,key):
     while n:
         if n.get(key):
             if isinstance( n.get(key),str):
-                ret.append(key)
+                ret.append(n.get(key))  # 修复：追加值而不是 key
             else:
                 # print('+====ret=',ret,'==>',n.get(key))
                 ret+=n.get(key)                

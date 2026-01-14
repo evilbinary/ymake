@@ -94,9 +94,6 @@ def get_target_include(target):
 
 def get_target_cxxflags(target):
         flags=[]
-        if target.get('cxxflags'):
-            flags+=target.get('cxxflags')
-
         flags+=node_get_parent_all(target,'cxxflags')
         # print('=============>',node_get_parent_all(target,'cflags'))
         # print('defines======================>',target.get('defines') ,target )
@@ -129,8 +126,6 @@ def get_lib_name(path_name):
 
 def get_target_ldflags(target):
     flags=[]
-    if target.get('ldflags'):
-        flags+=target.get('ldflags')
     toolchain= target.get('toolchain')
     if not toolchain:
         toolchain_name = node_get_parent(target,'toolchain')
@@ -139,11 +134,13 @@ def get_target_ldflags(target):
     if toolchain and toolchain.get('ldflags'):
         flags+= toolchain.get('ldflags')
 
-    flags+=node_get_parent_all(target,'ldflags')
-
+    # First: Add library paths and library files from dependencies
     deps=target.get('deps')
+    dep_libs = []  # Store library files separately
+    dep_ldflags = []  # Store ldflags from dependencies separately
+    
     if deps:
-        topological_order= get_dep_order(target,['static','shared','lib'])
+        topological_order= get_dep_order(target,['static','shared','lib'],reverse=True)
         log.debug('dep orders {}'.format(topological_order))
         for d in topological_order:
             n=nodes_get_type_and_name('target',d)
@@ -152,8 +149,9 @@ def get_target_ldflags(target):
             if not n.get('kind') in ['static','shared','lib']:
                 continue
             
+            # Collect ldflags from dependency (these should come AFTER the library)
             if n.get('ldflags'):
-                flags+=n.get('ldflags')
+                dep_ldflags += n.get('ldflags')
             
             n_build_dir=node_get_formated(n,'build-dir')
             if n.get('build-tool'):
@@ -162,31 +160,27 @@ def get_target_ldflags(target):
                     ext='.so'
                 lib_files=file_match(n_build_dir+'/*'+ext)
                 log.debug('====>lib_file {}'.format(lib_files))
-                flags+=['-L'+n_build_dir]
+                dep_libs += ['-L'+n_build_dir]
                 for lib in lib_files:
-                    flags+=['-l'+get_lib_name(lib)]
+                    dep_libs += ['-l'+get_lib_name(lib)]
             else:
                 lib_file=get_build_target(n)
                 if os.path.exists(lib_file):
-                    flags+=['-L'+n_build_dir]
-                    flags+=['-l'+d]
+                    dep_libs += ['-L'+n_build_dir]
+                    dep_libs += ['-l'+d]
 
+    # Add library files first, then their ldflags (to ensure correct linking order)
+    flags += dep_libs
+    flags += dep_ldflags
 
+    # Last: Add target's own ldflags
+    flags+=node_get_parent_all(target,'ldflags')
 
     log.debug('ldflags no uniq======>{} {}'.format(len(flags),target.get('name')))    
-    flags=list(OrderedDict.fromkeys(flags))
-    lib_path_flags = []
-    lib_name_flags = []
-    flags_rest =[]
-    for f in flags:
-        if f.startswith('-L'):
-            lib_path_flags.append(f)
-        elif f.startswith('-l') or f.startswith('-f'):
-            lib_name_flags.append(f)
-        else:
-            flags_rest.append(f)
-
-    flags=lib_path_flags+flags_rest+lib_name_flags
+    # Remove duplicates while preserving order (crucial for linking)
+    # Linking requires libraries to be in correct dependency order
+    # e.g., if A depends on B, order should be ... -lA -lB
+    flags = list(OrderedDict.fromkeys(flags))
     log.debug('ldflags======>{} len: {}'.format(flags,len(flags)))
     return flags
 

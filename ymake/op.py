@@ -53,23 +53,22 @@ def shell(cmd,args=[],**kwargs):
 import shlex
 
 def cmd(cmd,args=[],**kwargs):
-    # Simple approach: use args directly without shlex.split for Windows paths
-    if any('\\' in arg for arg in args):
-        args_list = args
-    else:
-        args_list = shlex.split(' '.join(args))
-    log.debug('args_list =>{}'.format(args_list))
-
-    cmds = [cmd]+ args_list
-    log.debug('cmds =>{}'.format(cmds))
+    # Simple and reliable approach: use shell=True for everything
+    # This avoids cross-platform parameter parsing issues
+    cmds = [cmd] + args
+    log.debug('22cmds =>{}'.format(cmds))
+    
+    # Join into string for shell mode - this handles Windows paths and spaces correctly
+    cmd_str = " ".join(cmds)
+    
     env=kwargs.pop('env',None)
     cwd=kwargs.pop('cwd',None)
     
     process=None
     if env:
-        process = subprocess.Popen(cmds, shell=False, env=env,cwd=cwd)
+        process = subprocess.Popen(cmd_str, shell=True, env=env, cwd=cwd)
     else:
-        process = subprocess.Popen(cmds, shell=False,cwd=cwd)    
+        process = subprocess.Popen(cmd_str, shell=True, cwd=cwd)    
 
     output, error = process.communicate()
 
