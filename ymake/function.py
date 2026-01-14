@@ -318,6 +318,8 @@ def file_match(patterns,root='.'):
         p=os.path.normpath(pp)
 
         matches=glob.glob(p)
+        # Convert Windows backslashes to forward slashes for consistency
+        matches = [match.replace('\\', '/') for match in matches]
 
         log.debug('str root=>{} patterns=>{} p=>{} matches=>{}'.format(root,pp,p,matches))
 
@@ -326,6 +328,8 @@ def file_match(patterns,root='.'):
             p1=os.path.join(root,pp)
             p=os.path.normpath(p1)
             g=glob.glob(p)
+            # Convert Windows backslashes to forward slashes for consistency
+            g = [item.replace('\\', '/') for item in g]
             if len(g)==0:
                 # for i in Path(root).glob(pp):
                 #    matches.append(str(i)) 
