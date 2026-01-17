@@ -1,5 +1,5 @@
 PYTHON=python3.11
-PYTHON="D:\Program Files (x86)\python3\python.exe"
+# PYTHON="D:\Program Files (x86)\python3\python.exe"
 
 all: test
 
@@ -24,7 +24,7 @@ upload: dist
 
 dist: ymake/*.py setup.py
 	rm -rf dist
-	$(PYTHON) -m build
+	$(PYTHON) -m build --no-isolation
 
 dev: clean
 	$(PYTHON) setup.py develop

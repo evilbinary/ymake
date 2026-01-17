@@ -182,10 +182,9 @@ def clean_target(project,graph,name):
         }
         if toolchain.get('build_prepare'):
             toolchain.get('build_prepare')(toolchain,target,opt)
-        print('clean target',toolchain)
 
-        #if toolchain.get('clean'):
-        toolchain.get('clean')(toolchain,target,opt)
+        if toolchain.get('clean'):
+            toolchain.get('clean')(toolchain,target,opt)
         progress = i + 1
         print_progress('clean',progress,total_nodes,node)
 
