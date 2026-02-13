@@ -306,6 +306,17 @@ def init():
     build_prepare=build_prepare,
     clean=gcc_clean)
 
+    toolchain('emscripten',
+    prefix='',
+    build=gcc_build,
+    build_prepare=build_prepare,
+    clean=gcc_clean)
+    tool=node_current()
+    tool['cc']='emcc'
+    tool['cxx']='emcc'
+    tool['ld']='emcc'
+    tool['ar']='emar'  
+
     toolchains_init()
     toolchain_end()
 

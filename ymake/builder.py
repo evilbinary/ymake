@@ -127,12 +127,15 @@ def get_lib_name(path_name):
 def get_target_ldflags(target):
     flags=[]
     log.debug('=== get_target_ldflags for target: {} ==='.format(target.get('name')))
-    
+
     toolchain= target.get('toolchain')
-    if not toolchain:
+    if isinstance(toolchain, str):
+        toolchain_name = toolchain
+        toolchain = nodes_get_type_and_name('toolchain', toolchain_name)
+    elif not toolchain:
         toolchain_name = node_get_parent(target,'toolchain')
-        toolchain=nodes_get_type_and_name('toolchain',toolchain_name)
-        
+        toolchain = nodes_get_type_and_name('toolchain', toolchain_name)
+
     if toolchain and toolchain.get('ldflags'):
         log.debug('toolchain ldflags: {}'.format(toolchain.get('ldflags')))
         flags+= toolchain.get('ldflags')
