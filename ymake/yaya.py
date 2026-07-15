@@ -397,8 +397,10 @@ def process():
             clean(args.c)
         elif args.b:
             build(args.b)
+        elif args.r:
+            build(args.r)
         else:
-            build(args.b)
+            build(None)
         if args.r:
             run(args.r)
     except (KeyboardInterrupt):
