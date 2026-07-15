@@ -222,10 +222,23 @@ def clean(name=None):
 def run(name):
     node_finish()
 
+    run_args = get_run_args()
+    log.debug('run target={} program-args={}'.format(name, run_args))
+
     target=nodes_get_type_and_name('target',name)
     if target:
+        target['run-args']=run_args
         call_hook_event(target,'before_run')
-        call_hook_event(target,'on_run')
+        if target.get('kind') == 'binary':
+            exe = get_build_target(target)
+            if not os.path.exists(exe) and os.path.exists(exe + '.exe'):
+                exe += '.exe'
+            log.debug('run command: {} {}'.format(exe, ' '.join(run_args)))
+            cmd(exe, run_args)
+        elif target.get('on_run'):
+            call_hook_event(target,'on_run')
+        else:
+            log.warn('target {} has no on_run hook'.format(name))
     else:
         print('target {}{}{} not found to run, target list: '.format(Fore.MAGENTA,name,Style.RESET_ALL))
 
@@ -343,7 +356,7 @@ def init():
     parser = argparse.ArgumentParser(allow_abbrev=True,add_help=False)
 
     parser.add_argument('-v',nargs='?', default=None, help='verborse info debug error')
-    parser.add_argument('-r','-run',nargs='?', default=None, help='run the project target.')
+    parser.add_argument('-r','-run',nargs='?', default=None, help='run the project target. use -- to pass program args.')
     parser.add_argument('-j',nargs='?', default=1, help='job number')
     parser.add_argument('-m','-mode',nargs='?', default=None, help='build mode debug release')
     parser.add_argument('-b','-build',nargs='?', default=None, help='build the project target.')
@@ -352,7 +365,10 @@ def init():
 
     parser.add_argument('-h','--help',action='store_true', default=None, help='help')
 
-    args,unknown = parser.parse_known_args()
+    cli_args, prog_args = split_cli_args(sys.argv[1:])
+    set_run_args(prog_args)
+
+    args,unknown = parser.parse_known_args(cli_args)
 
     verborse=args.v
     if args.help :
@@ -364,18 +380,21 @@ def init():
 
         exit(0)
    
-    log.debug('args=>',unknown)
-    # 添加参数
-    for name in unknown:
-        n=name.replace('--','')
-        option(n,value=True)        
-
     if args.v=='D':
         log.setLevel(logging.DEBUG)
     elif args.v=='I':
         log.setLevel(logging.INFO)
     elif args.v=='W':
         log.setLevel(logging.WARN)
+
+    log.debug('cli args: {}'.format(cli_args))
+    log.debug('program args: {}'.format(prog_args))
+    log.debug('unknown args: {}'.format(unknown))
+    # 添加参数
+    for name in unknown:
+        n=name.replace('--','')
+        option(n,value=True)        
+
     if args.j:
         jobnum=args.j
         set_config('jobnum',int(jobnum))

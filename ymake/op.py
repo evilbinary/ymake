@@ -56,7 +56,7 @@ def cmd(cmd,args=[],**kwargs):
     # Simple and reliable approach: use shell=True for everything
     # This avoids cross-platform parameter parsing issues
     cmds = [cmd] + args
-    log.debug('22cmds =>{}'.format(cmds))
+    log.debug('exec cmd =>{}'.format(cmds))
     
     # Join into string for shell mode - this handles Windows paths and spaces correctly
     cmd_str = " ".join(cmds)

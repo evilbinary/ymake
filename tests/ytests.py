@@ -308,3 +308,18 @@ def test_add_deps():
     add_deps(['d','e'])
 
     assert cur['deps'] == ['a','1','2','d','e']
+
+def test_split_cli_args():
+    cli, run = split_cli_args(['-r', 'hello', '--', '--foo', 'bar'])
+    assert cli == ['-r', 'hello']
+    assert run == ['--foo', 'bar']
+
+    cli, run = split_cli_args(['-vD', '-b', 'hello'])
+    assert cli == ['-vD', '-b', 'hello']
+    assert run == []
+
+def test_run_args():
+    set_run_args(['--foo', 'bar'])
+    assert get_run_args() == ['--foo', 'bar']
+    set_run_args([])
+    assert get_run_args() == []

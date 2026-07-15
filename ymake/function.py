@@ -489,6 +489,22 @@ def get_config(key):
     val= node_get_parent(cur,key)
     return val
 
+def split_cli_args(argv):
+    run_argv = []
+    if '--' in argv:
+        sep = argv.index('--')
+        run_argv = argv[sep + 1:]
+        argv = argv[:sep]
+    return argv, run_argv
+
+def set_run_args(args):
+    from globa import run_args as global_run_args
+    global_run_args[:] = list(args)
+
+def get_run_args():
+    from globa import run_args
+    return list(run_args)
+
 def is_plat(*patterns):
     platform=get_plat()
     matches = []
@@ -719,6 +735,7 @@ def import_source(file):
 
     module.set_config=set_config
     module.get_config=get_config
+    module.get_run_args=get_run_args
     module.add_cflags=add_cflags
     module.add_cxxflags=add_cxxflags
     module.add_ldflags=add_ldflags
