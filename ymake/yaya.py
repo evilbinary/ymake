@@ -362,6 +362,7 @@ def init():
     parser.add_argument('-b','-build',nargs='?', default=None, help='build the project target.')
     parser.add_argument('-c','-clean',nargs='?', default=None, help='clean the project target.')
     parser.add_argument('-p','-plat',nargs='?', default=None, help='select the project platform.')
+    parser.add_argument('-a','-arch',nargs='?', default=None, help='select the project arch.')
 
     parser.add_argument('-h','--help',action='store_true', default=None, help='help')
 
@@ -403,6 +404,8 @@ def init():
         set_config('mode',mode)
     if args.p:
         set_defaultplat(args.p)
+    if args.a:
+        set_arch(args.a)
 
 def process():
     try:
