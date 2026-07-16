@@ -323,3 +323,10 @@ def test_run_args():
     assert get_run_args() == ['--foo', 'bar']
     set_run_args([])
     assert get_run_args() == []
+
+def test_get_list_args_spaces():
+    sysroot='D:\\Program Files\\android-ndk\\sysroot'
+    assert get_list_args([sysroot]) == [sysroot]
+    assert get_list_args(['--sysroot', sysroot]) == ['--sysroot', sysroot]
+    assert get_list_args(['-O2 -g']) == ['-O2', '-g']
+    assert get_list_args(['--sysroot=' + sysroot]) == ['--sysroot=' + sysroot]

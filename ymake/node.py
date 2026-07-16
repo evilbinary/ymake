@@ -81,6 +81,9 @@ def get_list_args(args,sep=' '):
     ret=[]
     for a in args:
         if isinstance(a,str):
+            if sep == ' ' and (not a.startswith('-') or (a.startswith('--') and '=' in a)):
+                ret.append(a.strip())
+                continue
             s=a.split(sep)
             if len(s)>0:
                 ret+=[x for x in s if x != '']

@@ -26,13 +26,21 @@ def scriptdir():
     dir_name=os.path.dirname(simplified_path)
     return dir_name
 
+import shlex
+
+def _join_cmd(cmds):
+    parts = [str(c) for c in cmds]
+    if os.name == 'nt':
+        return subprocess.list2cmdline(parts)
+    return ' '.join(shlex.quote(part) for part in parts)
+
 def shell(cmd,args=[],**kwargs):
     cmds = [cmd]+args
     log.debug('shell =>{}'.format(cmds))
     process=None
     env=kwargs.pop('env',None)
     cwd=kwargs.pop('cwd',None)
-    cmds=" ".join(cmds)
+    cmds = _join_cmd(cmds)
     if env:
         process = subprocess.Popen(cmds, shell=True, env=env,cwd=cwd)
     else:
@@ -50,25 +58,17 @@ def shell(cmd,args=[],**kwargs):
             s+=str(output)
         raise Exception(s)
 
-import shlex
-
 def cmd(cmd,args=[],**kwargs):
-    # Simple and reliable approach: use shell=True for everything
-    # This avoids cross-platform parameter parsing issues
-    cmds = [cmd] + args
+    cmds = [cmd] + list(args)
     log.debug('exec cmd =>{}'.format(cmds))
-    
-    # Join into string for shell mode - this handles Windows paths and spaces correctly
-    cmd_str = " ".join(cmds)
-    
+
     env=kwargs.pop('env',None)
     cwd=kwargs.pop('cwd',None)
-    
-    process=None
+
     if env:
-        process = subprocess.Popen(cmd_str, shell=True, env=env, cwd=cwd)
+        process = subprocess.Popen(cmds, shell=False, env=env, cwd=cwd)
     else:
-        process = subprocess.Popen(cmd_str, shell=True, cwd=cwd)    
+        process = subprocess.Popen(cmds, shell=False, cwd=cwd)
 
     output, error = process.communicate()
 
