@@ -39,21 +39,36 @@ args=None
 parser=None
 
 
-def compile(project,graph,name):
+def get_build_order(project, name):
+    t=project.get('target-objs').get(name)
+    if not t:
+        log.error('not found target {}'.format(name))
+        return None
+    order=get_dep_order(t)
+    order.reverse()
+    order.append(name)
+    return order
+
+def compile(project,graph,names=None):
     G = nx.DiGraph(graph)
     # 执行拓扑排序
     topological_order = [] 
 
     toolchain_name=project.get('toolchain')
 
-    if name:
-        t=project.get('target-objs').get(name)
-        if not t:
-            log.error('not found target {}'.format(name))
-            return
-        topological_order=get_dep_order(t)
-        topological_order.reverse()
-        topological_order.append(name)
+    if names:
+        if isinstance(names, str):
+            names=[names]
+        seen=set()
+        for name in names:
+            order=get_build_order(project, name)
+            if order is None:
+                return
+            for node in order:
+                if node not in seen:
+                    seen.add(node)
+                    topological_order.append(node)
+        log.debug('build targets: {}'.format(names))
     else:
         topological_order=(list(nx.topological_sort(G)))
         topological_order.reverse()
@@ -121,7 +136,7 @@ def node_dump(node):
     pass
 
 
-def build(name=None):
+def build(names=None):
     node_finish()
     for p in nodes:
         if not p.get('type') in ['project']:
@@ -141,7 +156,7 @@ def build(name=None):
                 print(' -> '.join(cycle))
             print('build failed')
         else:
-            compile(p,graph,name)
+            compile(p,graph,names)
 
 
 
@@ -359,7 +374,7 @@ def init():
     parser.add_argument('-r','-run',nargs='?', default=None, help='run the project target. use -- to pass program args.')
     parser.add_argument('-j',nargs='?', default=1, help='job number')
     parser.add_argument('-m','-mode',nargs='?', default=None, help='build mode debug release')
-    parser.add_argument('-b','-build',nargs='?', default=None, help='build the project target.')
+    parser.add_argument('-b','-build',nargs='*', default=None, help='build the project target(s).')
     parser.add_argument('-c','-clean',nargs='?', default=None, help='clean the project target.')
     parser.add_argument('-p','-plat',nargs='?', default=None, help='select the project platform.')
     parser.add_argument('-a','-arch',nargs='?', default=None, help='select the project arch.')
@@ -417,8 +432,8 @@ def process():
        
         if args.c:
             clean(args.c)
-        elif args.b:
-            build(args.b)
+        elif args.b is not None:
+            build(args.b if args.b else None)
         elif args.r:
             build(args.r)
         else:
