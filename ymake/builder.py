@@ -59,6 +59,15 @@ def get_object_name(obj,full=False):
     new_obj_name = '.o'.join(parts)
     return new_obj_name
 
+def get_build_obj_path(src, build_obj_dir):
+    rel_src = src.replace('\\', '/')
+    if os.path.isabs(rel_src):
+        try:
+            rel_src = os.path.relpath(rel_src, os.getcwd()).replace('\\', '/')
+        except ValueError:
+            rel_src = os.path.basename(rel_src)
+    return os.path.join(build_obj_dir, get_object_name(rel_src))
+
 
 def get_target_include(target):
     includes=[]
@@ -331,8 +340,7 @@ def build_prepare(tool,target,opt={}):
             normal_kind=['c','cc','cxx','cpp','s','h','hpp','S']
         for f in match_files:
             ext=get_ext(f)
-            obj_name=get_object_name(f)
-            build_obj=os.path.join(build_obj_dir,obj_name)
+            build_obj=get_build_obj_path(f, build_obj_dir)
             obj_files.append({
                 'obj': build_obj,
                 'src': f

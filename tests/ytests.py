@@ -19,7 +19,8 @@ import pytest
 def test_file_match():
     result =file_match('tests/**/*.c')
     print('files=>',result)
-    assert result == ['tests/a/a.c', 'tests/c/c.c', 'tests/b/b2.c', 'tests/b/b1.c', 'tests/b/b4.c', 'tests/b/b.c', 'tests/b/b3.c']
+    expected = ['tests/a/a.c', 'tests/c/c.c', 'tests/b/b2.c', 'tests/b/b1.c', 'tests/b/b4.c', 'tests/b/b.c', 'tests/b/b3.c']
+    assert sorted(result) == sorted(expected)
 
 def test_grph_cycle():
     graph = {
@@ -360,6 +361,13 @@ def test_cmd_executable_not_found(capsys):
     with pytest.raises(FileNotFoundError):
         cmd('ymake-nonexistent-tool', [])
     assert 'executable not found' in capsys.readouterr().out
+
+def test_build_obj_path():
+    import os
+    from ymake.builder import get_build_obj_path
+    src = os.path.abspath('app/db/main.c')
+    build_obj = get_build_obj_path(src, 'build/None/None/None/objs')
+    assert build_obj.replace('\\', '/') == 'build/None/None/None/objs/app/db/main.o'
 
 def test_cmd_prints_output_on_failure(capsys):
     from ymake.op import cmd
