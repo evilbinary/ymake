@@ -66,7 +66,7 @@ def target(name, **kwargs):
     simplified_path = os.path.normpath(caller_file_path)
     dir_name=os.path.dirname(simplified_path)
 
-    relative_dir_name=os.path.relpath(dir_name)
+    relative_dir_name=safe_relpath(dir_name)
     if relative_dir_name.startswith('..'):
         relative_dir_name='/'.join(relative_dir_name.split(os.sep)[2:])
 
@@ -309,6 +309,14 @@ def script_dir():
     simplified_path = os.path.normpath(caller_file_path)
     dir_name=os.path.dirname(simplified_path)
     return dir_name
+
+def safe_relpath(path, start=None):
+    if start is None:
+        start = os.getcwd()
+    try:
+        return os.path.relpath(path, start)
+    except ValueError:
+        return os.path.normpath(path).replace('\\', '/')
 
 def file_match(patterns,root='.'):
     matches=[]
@@ -558,20 +566,16 @@ def set_filename(file):
     node_set('filename',file)
 
 def add_subs(*path):
-    caller_frame = inspect.currentframe().f_back
-    caller_file_path = inspect.getframeinfo(caller_frame).filename
-    simplified_path = './'+caller_file_path
-    if caller_file_path.startswith('/'):
-        simplified_path = caller_file_path
+    if len(path) == 1 and isinstance(path[0], str):
+        p = os.path.normpath(path[0])
+        if os.path.isfile(p) or (p.endswith('.py') and not any(c in p for c in '*?[]')):
+            dir_name = os.path.dirname(os.path.abspath(p))
+        else:
+            dir_name = script_dir()
+    else:
+        dir_name = script_dir()
 
-    dir_name=os.path.dirname(simplified_path)
-
-    # print('caller_file_path=>',caller_file_path)
-    # print('simplified_path=>',simplified_path)
-
-    # print('dir_name=>',dir_name)
-
-    relative_dir_name=os.path.relpath(dir_name)
+    relative_dir_name=safe_relpath(dir_name)
     log.debug('add subs {} relpath {}'.format(dir_name,relative_dir_name ))    
     paths= file_match(path,dir_name)
     for p in paths:
