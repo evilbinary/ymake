@@ -336,8 +336,10 @@ def file_match(patterns,root='.'):
             p1=os.path.join(root,pp)
             p=os.path.normpath(p1)
             g=glob.glob(p)
+            if len(g)==0 and not os.path.isabs(pp):
+                g=glob.glob(os.path.normpath(pp))
             # Convert Windows backslashes to forward slashes for consistency
-            g = [item.replace('\\', '/') for item in g]
+            g = [os.path.abspath(item).replace('\\', '/') for item in g]
             if len(g)==0:
                 # for i in Path(root).glob(pp):
                 #    matches.append(str(i)) 
@@ -566,14 +568,13 @@ def set_filename(file):
     node_set('filename',file)
 
 def add_subs(*path):
-    if len(path) == 1 and isinstance(path[0], str):
-        p = os.path.normpath(path[0])
-        if os.path.isfile(p) or (p.endswith('.py') and not any(c in p for c in '*?[]')):
-            dir_name = os.path.dirname(os.path.abspath(p))
-        else:
-            dir_name = script_dir()
-    else:
-        dir_name = script_dir()
+    caller_frame = inspect.currentframe().f_back
+    caller_file_path = inspect.getframeinfo(caller_frame).filename
+    dir_name = os.path.dirname(os.path.normpath(caller_file_path))
+    try:
+        os.path.relpath(dir_name, os.getcwd())
+    except ValueError:
+        dir_name = os.getcwd()
 
     relative_dir_name=safe_relpath(dir_name)
     log.debug('add subs {} relpath {}'.format(dir_name,relative_dir_name ))    

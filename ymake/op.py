@@ -65,10 +65,17 @@ def cmd(cmd,args=[],**kwargs):
     env=kwargs.pop('env',None)
     cwd=kwargs.pop('cwd',None)
 
-    if env:
-        process = subprocess.Popen(cmds, shell=False, env=env, cwd=cwd)
-    else:
-        process = subprocess.Popen(cmds, shell=False, cwd=cwd)
+    try:
+        if env:
+            process = subprocess.Popen(cmds, shell=False, env=env, cwd=cwd)
+        else:
+            process = subprocess.Popen(cmds, shell=False, cwd=cwd)
+    except FileNotFoundError:
+        print('executable not found: {}'.format(cmd))
+        alt = shutil.which(os.path.basename(str(cmd)))
+        if alt:
+            print('hint: found {} on PATH'.format(alt))
+        raise
 
     output, error = process.communicate()
 
