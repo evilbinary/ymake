@@ -330,3 +330,39 @@ def test_get_list_args_spaces():
     assert get_list_args(['--sysroot', sysroot]) == ['--sysroot', sysroot]
     assert get_list_args(['-O2 -g']) == ['-O2', '-g']
     assert get_list_args(['--sysroot=' + sysroot]) == ['--sysroot=' + sysroot]
+
+def test_get_list_args_ldflags():
+    assert get_list_args((' -L/mingw64/lib/ -lmariadb ',)) == ['-L/mingw64/lib/', '-lmariadb']
+    assert get_list_args(('-L/mingw64/lib/ -lmariadb',)) == ['-L/mingw64/lib/', '-lmariadb']
+
+def test_add_ldflags_split():
+    node_finish()
+    root('root')
+    project('ldflags-split')
+    target('db')
+    add_ldflags(' -L/mingw64/lib/ -lmariadb ')
+    assert node_current().get('ldflags') == ['-L/mingw64/lib/', '-lmariadb']
+
+def test_safe_relpath_cross_drive():
+    import os
+    if os.name != 'nt':
+        pytest.skip('windows only')
+    assert safe_relpath('C:\\foo\\bar', start='E:\\workspace') == 'C:/foo/bar'
+
+def test_file_match_cwd_fallback():
+    import os
+    wrong_root = os.path.join(os.getcwd(), 'tests', 'a')
+    matches = file_match(('./tests/a/ya.py',), wrong_root)
+    assert 'tests/a/ya.py' in matches[0].replace('\\', '/')
+
+def test_cmd_executable_not_found(capsys):
+    from ymake.op import cmd
+    with pytest.raises(FileNotFoundError):
+        cmd('ymake-nonexistent-tool', [])
+    assert 'executable not found' in capsys.readouterr().out
+
+def test_cmd_prints_output_on_failure(capsys):
+    from ymake.op import cmd
+    with pytest.raises(Exception, match='build failed'):
+        cmd(sys.executable, ['-c', 'import sys; print("build failed"); sys.exit(1)'])
+    assert 'build failed' in capsys.readouterr().out

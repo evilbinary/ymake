@@ -390,7 +390,7 @@ def add_cxxflags(*cflags,**kwargs):
 def add_ldflags(*ldflags,**kwargs):
     before=kwargs.pop('before',True)
 
-    #ldflags=get_list_args(ldflags,'')
+    ldflags=get_list_args(ldflags)
     cur=node_current()
     # 过滤掉空的item
     ldflags = [formatted_item for item in ldflags if (formatted_item := format_target_var(cur, item))]

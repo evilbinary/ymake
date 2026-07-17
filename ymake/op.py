@@ -67,9 +67,11 @@ def cmd(cmd,args=[],**kwargs):
 
     try:
         if env:
-            process = subprocess.Popen(cmds, shell=False, env=env, cwd=cwd)
+            process = subprocess.Popen(cmds, shell=False, env=env, cwd=cwd,
+                stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         else:
-            process = subprocess.Popen(cmds, shell=False, cwd=cwd)
+            process = subprocess.Popen(cmds, shell=False, cwd=cwd,
+                stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     except FileNotFoundError:
         print('executable not found: {}'.format(cmd))
         alt = shutil.which(os.path.basename(str(cmd)))
@@ -77,19 +79,16 @@ def cmd(cmd,args=[],**kwargs):
             print('hint: found {} on PATH'.format(alt))
         raise
 
-    output, error = process.communicate()
+    output, _ = process.communicate()
 
     if process.returncode == 0:
         pass
     else:
-        log.error('msg is {} ,code {} {} {}'.format(output,process.returncode,error,process.errors))
-        
-        s=''
-        if error:
-            s+=str(error)
-        if output:
-            s+=str(output)
-        raise Exception(s)
+        msg = (output or b'').decode(errors='replace').strip()
+        log.error('cmd failed code {}: {}'.format(process.returncode, msg))
+        if msg:
+            print(msg)
+        raise Exception(msg or 'command failed with exit code {}'.format(process.returncode))
 
 def cmdstr(s):
     s=s.replace('  ',' ')
