@@ -244,14 +244,14 @@ def run(name):
     if target:
         target['run-args']=run_args
         call_hook_event(target,'before_run')
-        if target.get('kind') == 'binary':
+        if target.get('on_run'):
+            call_hook_event(target,'on_run')
+        elif target.get('kind') == 'binary':
             exe = get_build_target(target)
             if not os.path.exists(exe) and os.path.exists(exe + '.exe'):
                 exe += '.exe'
             log.debug('run command: {} {}'.format(exe, ' '.join(run_args)))
             cmd(exe, run_args)
-        elif target.get('on_run'):
-            call_hook_event(target,'on_run')
         else:
             log.warn('target {} has no on_run hook'.format(name))
     else:
