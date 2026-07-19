@@ -40,11 +40,14 @@ def shell(cmd,args=[],**kwargs):
     process=None
     env=kwargs.pop('env',None)
     cwd=kwargs.pop('cwd',None)
-    cmds = _join_cmd(cmds)
-    if env:
-        process = subprocess.Popen(cmds, shell=True, env=env,cwd=cwd)
+    if len(cmds) == 1:
+        cmdline = str(cmds[0])
     else:
-        process = subprocess.Popen(cmds, shell=True,cwd=cwd)
+        cmdline = _join_cmd(cmds)
+    if env:
+        process = subprocess.Popen(cmdline, shell=True, env=env,cwd=cwd)
+    else:
+        process = subprocess.Popen(cmdline, shell=True,cwd=cwd)
 
     output, error = process.communicate()
     if process.returncode == 0:
