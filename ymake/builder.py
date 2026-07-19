@@ -391,6 +391,23 @@ def gcc_clean(tool,target,opt={}):
     if os.path.exists(build_target):
         os.remove(build_target)
 
+def build_hook_target(tool,target,opt={}):
+    build_target=get_build_target(target)
+    log.debug('hook target {} output {}'.format(target.get('name'), build_target))
+
+    if os.path.exists(build_target):
+        call_hook_event(target,'after_link')
+        call_hook_event(target,'after_build')
+        return
+
+    build_dir=os.path.dirname(build_target)
+    if build_dir and not os.path.exists(build_dir):
+        os.makedirs(build_dir, exist_ok=True)
+
+    call_hook_event(target,'on_build')
+    call_hook_event(target,'after_link')
+    call_hook_event(target,'after_build')
+
 def gcc_build(tool,target,opt={}):
     call_hook_event(target,'before_build')
 
@@ -398,6 +415,9 @@ def gcc_build(tool,target,opt={}):
     configfile_build(target)
     file_objs=target.get("file-objs")
     if not file_objs:
+        if target.get('on_build'):
+            build_hook_target(tool,target,opt)
+            return
         log.warn("build target {} not found file {}".
         format(target.get("name"),
         target.get('files')
