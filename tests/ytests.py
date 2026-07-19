@@ -374,3 +374,63 @@ def test_cmd_prints_output_on_failure(capsys):
     with pytest.raises(Exception, match='build failed'):
         cmd(sys.executable, ['-c', 'import sys; print("build failed"); sys.exit(1)'])
     assert 'build failed' in capsys.readouterr().out
+
+def test_get_build_order_run_target_includes_kernel_elf():
+    """ya -r qemu should build kernel.elf and its transitive deps."""
+    node_finish()
+    root('root')
+    project('qemu-run-test')
+
+    target('arch')
+    target('kernel')
+    target('modules')
+
+    target('kernel.elf')
+    add_deps('arch', 'kernel', 'modules')
+
+    target('disk.img')
+    target('duck.img')
+
+    target('run-qemu')
+    add_deps('duck.img', 'disk.img', 'kernel.elf')
+
+    node_finish()
+
+    p = nodes_get_type_and_name('project', 'qemu-run-test')
+    order = get_build_order(p, 'run-qemu')
+
+    assert order is not None
+    assert order[-1] == 'run-qemu'
+    assert 'kernel.elf' in order
+    assert 'arch' in order
+    assert 'kernel' in order
+    assert 'modules' in order
+    assert order.index('kernel.elf') < order.index('run-qemu')
+    assert order.index('arch') < order.index('kernel.elf')
+
+def test_run_prefers_on_run_over_binary(monkeypatch):
+    """run targets like qemu should invoke on_run, not execute build output."""
+    node_finish()
+    root('root')
+    project('run-hook-test')
+
+    target('run-qemu-hook')
+    set_kind('binary')
+    ran = []
+
+    def run_qemu(t):
+        ran.append('on_run')
+
+    on_run(run_qemu)
+    node_finish()
+
+    import ymake.yaya as yaya
+
+    def fail_cmd(*args, **kwargs):
+        ran.append('cmd')
+        raise AssertionError('cmd should not be called when on_run exists')
+
+    monkeypatch.setattr(yaya, 'cmd', fail_cmd)
+
+    yaya.run('run-qemu-hook')
+    assert ran == ['on_run']
