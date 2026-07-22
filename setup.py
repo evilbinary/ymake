@@ -7,7 +7,7 @@ with codecs.open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 setuptools.setup(
     name="yymake",
-    version="0.9.8",
+    version="0.9.9",
     author="evilbinary",
     author_email="rootntsd@gmail.com",
     description="A cross build dsl make tool",
