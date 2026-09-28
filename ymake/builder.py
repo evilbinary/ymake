@@ -216,7 +216,27 @@ def get_target_ldflags(target):
     flags+=own_ldflags
 
     log.debug('ldflags before dedup: {}'.format(flags))
-    flags = list(OrderedDict.fromkeys(flags))
+    # YiYiYa: 去重必须按“完整标志单位”处理。像 -framework SDL2_ttf / -F ../libs
+    # 这类“标志 + 参数”是成对的：逐 token 去重会把重复的 -framework 丢掉、只留下
+    # 名字，clang 便把 SDL2_ttf/SDL2_image 当成输入文件，报
+    # "no such file or directory: 'SDL2_ttf'"。
+    _pair_flags = ('-framework', '-weak_framework', '-F', '-L', '-I', '-l', '-u', '-T')
+    _seen = set()
+    _uniq = []
+    _i = 0
+    _n = len(flags)
+    while _i < _n:
+        _f = flags[_i]
+        if _f in _pair_flags and _i + 1 < _n and not flags[_i + 1].startswith('-'):
+            _take = 2
+        else:
+            _take = 1
+        _unit = tuple(flags[_i:_i + _take])
+        if _unit not in _seen:
+            _seen.add(_unit)
+            _uniq.extend(_unit)
+        _i += _take
+    flags = _uniq
     log.debug('ldflags after dedup: {}'.format(flags))
     return flags
 
